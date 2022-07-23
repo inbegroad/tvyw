@@ -1,0 +1,12 @@
+node_modules
+build
+dist
+*.tsbuildinfo
+*.gitignore
+*.lock
+*.npmignore
+examples
+example
+templates
+templates/**/*
+bin

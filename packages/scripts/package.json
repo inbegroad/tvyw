@@ -1,0 +1,49 @@
+{
+  "name": "scripts",
+  "version": "0.0.0",
+  "private": true,
+  "author": {
+    "email": "azmi.abas.989@gmail.com",
+    "name": "Azmi Abas"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inbegroad/tvyw.git",
+    "directory": "packages/scripts"
+  },
+  "packageManager": "yarn@3.2.1",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "types": "types/index.d.ts",
+  "bin": "bin/index.js",
+  "exports": {
+    ".": {
+      "default": "./dist/index.umd.js",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.js",
+      "module": "./dist/index.es.js"
+    }
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "deploy": "echo 'Deploying...'"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.1",
+    "@rollup/plugin-eslint": "^8.0.2",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@types/node": "^17.0.40",
+    "concurrently": "^7.3.0",
+    "rollup": "^2.76.0",
+    "rollup-plugin-delete": "^2.0.0",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.32.1",
+    "typescript": "4.7.4"
+  },
+  "dependencies": {
+    "@yarnpkg/shell": "^4.0.0-rc.12",
+    "commander": "^9.4.0"
+  }
+}

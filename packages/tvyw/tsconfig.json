@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "declaration": true,
+    "forceConsistentCasingInFileNames": true,
+    "inlineSources": false,
+    "isolatedModules": true,
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "preserveWatchOutput": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "declarationDir": "types",
+    "lib": ["ES2015", "ESNext", "es2021"]
+  },
+  "include": ["src"],
+  "files": ["src/version.json"],
+  "references": [{ "path": "../scripts" }],
+  "exclude": ["node_modules", "dist", "types", "templates/**/*"]
+}

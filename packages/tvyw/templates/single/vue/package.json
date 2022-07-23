@@ -1,0 +1,23 @@
+{
+  "name": "vite-vue-typescript-starter",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "inbegroad run dev",
+    "build": "inbegroad run build",
+    "preview": "inbegroad run preview"
+  },
+  "dependencies": {
+    "vue": "^3.2.25"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.39",
+    "@vitejs/plugin-vue": "^2.3.0",
+    "eslint-config-vue": "^2.0.2",
+    "eslint-plugin-vue": "^9.0.1",
+    "inbegroad": "file:../inbegroad",
+    "typescript": "^4.5.4",
+    "vite": "^2.9.0",
+    "vue-tsc": "^0.29.8"
+  }
+}

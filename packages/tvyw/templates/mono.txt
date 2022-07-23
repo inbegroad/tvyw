@@ -1,0 +1,6 @@
+import { defineConfig } from "tvyw";
+
+export default defineConfig({
+  repoType: __repoType__,
+  root: __root__,
+});

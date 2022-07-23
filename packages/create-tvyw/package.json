@@ -1,0 +1,38 @@
+{
+  "name": "create-tvyw",
+  "version": "0.1.21",
+  "author": {
+    "email": "azmi.abas.989@gmail.com",
+    "name": "Azmi Abas"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inbegroad/tvyw.git",
+    "directory": "packages/create-tvyw"
+  },
+  "scripts": {
+    "deploy": "scripts deploy"
+  },
+  "keywords": [
+    "typescript",
+    "project",
+    "react",
+    "svelte",
+    "vue",
+    "express",
+    "preact",
+    "vite",
+    "mono repos",
+    "bundler"
+  ],
+  "packageManager": "yarn@3.2.1",
+  "main": "index.js",
+  "bin": "index.js",
+  "devDependencies": {
+    "scripts": "workspace:^"
+  },
+  "dependencies": {
+    "commander": "^9.2.0",
+    "tvyw": "workspace:^"
+  }
+}
