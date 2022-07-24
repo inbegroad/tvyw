@@ -3,6 +3,8 @@ import { calculateIncludes } from "../tools/calculate-includes";
 import { calculateReferences } from "../tools/calculate-references";
 import { getPackageJsonFiles } from "../tools/ge-pkgjson-files";
 import { processPackageJson } from "../tools/process-package-json";
+import { refPackages } from "../tools/relative-packages";
+import { getVersionConfig } from "../tools/version-config";
 import {
   findWorkspaceByName,
   getWorkspacesList,
@@ -50,6 +52,7 @@ export const buildAProject: BuildAProjectType = async ({
   // packageJson
   const wss = workspaces || getWorkspacesList();
   const found = findWorkspaceByName(packageName, wss);
+  const { dev } = getVersionConfig();
   if (found !== undefined) {
     const { packageJson, tsconfig = {} } = found;
     if (projMan.repoType === "monoRepo" && !projMan.root) {
@@ -57,11 +60,13 @@ export const buildAProject: BuildAProjectType = async ({
       const haveDeps = isWorkspaceDep(packageJson.dependencies, wss);
 
       for (const dep of haveDeps) {
-        const found = findWorkspaceByName(dep, wss);
-        if (found !== undefined)
+        const dist = findWorkspaceByName(dep, wss);
+        if (dist !== undefined)
           tempDeps[dep] = isDev
-            ? "workspace:^"
-            : found.packageJson.version || "0.0.0";
+            ? dev
+              ? refPackages(found.location, dist.location)
+              : "workspace:^"
+            : dist.packageJson.version || "0.0.0";
       }
       packageJson.dependencies = tempDeps;
     }
