@@ -36,7 +36,7 @@ export const getDependencies = ({
   // const names =
   const version = dev
     ? isMono
-      ? `../../node_modules/${name}`
+      ? `../../../${name}/packages/${name}`
       : newVersion
     : orVersion;
   const forMonoRoot = { [name]: newVersion };

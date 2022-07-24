@@ -48,7 +48,7 @@ export const buildAProject: BuildAProjectType = async ({
   isDev,
 }) => {
   // packageJson
-  const wss = workspaces || getWorkspacesList(true);
+  const wss = workspaces || getWorkspacesList();
   const found = findWorkspaceByName(packageName, wss);
   if (found !== undefined) {
     const { packageJson, tsconfig = {} } = found;

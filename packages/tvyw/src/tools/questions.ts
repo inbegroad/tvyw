@@ -27,34 +27,30 @@ type QuestionType<T, R> = CallBack<T, Promise<R>>;
 
 const linkWorkspaces = async (
   packageName: string,
-  workspaceType: WorkspaceType,
   workspaces?: WorkspacesListType
 ) => {
   let selectedWorkspaces: string[] = [];
-  if (workspaceType === "package") {
-    const wsl = workspaces || getWorkspacesList();
-    const { workspaces: wss } = wsl;
+  const wsl = workspaces || getWorkspacesList();
+  const { workspaces: wss } = wsl;
 
-    if (wss && wss.length > 0) {
-      const question: QuestionCollection<{ selectedFramework: string[] }> = {
-        type: "checkbox",
-        name: "selectedFramework",
-        message: "Select workspaces to link",
-        choices: wss
-          .filter((w) => w.isPackage && w.name !== packageName)
-          .map((ws) => {
-            return {
-              name: ws.name,
-              value: ws.name,
-              key: ws.location,
-            };
-          }),
-      };
-      const { selectedFramework: sfws } = await inquirer.prompt(question);
-      selectedWorkspaces = sfws;
-    }
+  if (wss && wss.length > 0) {
+    const question: QuestionCollection<{ selectedFramework: string[] }> = {
+      type: "checkbox",
+      name: "selectedFramework",
+      message: "Select workspaces to link",
+      choices: wss
+        .filter((w) => w.isPackage && w.name !== packageName)
+        .map((ws) => {
+          return {
+            name: ws.name,
+            value: ws.name,
+            key: ws.location,
+          };
+        }),
+    };
+    const { selectedFramework: sfws } = await inquirer.prompt(question);
+    selectedWorkspaces = sfws;
   }
-
   return selectedWorkspaces;
 };
 const selectAWorkspace = async (

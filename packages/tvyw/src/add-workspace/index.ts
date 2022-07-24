@@ -77,15 +77,17 @@ export const addWorkspace: AddWorkspaceActionType = async (
         framework,
       },
     });
-    await yarn.execute("yarn");
 
     const linkedWorkspaces = await questionsMonoList.linkWorkspaces(
       pkgName,
-      workspaceType,
       workspaces
     );
-    for (const ws of linkedWorkspaces) {
-      await yarn.execute(`yarn workspace ${ws} add ${pkgName}`);
+
+    if (linkedWorkspaces.length === 0) await yarn.execute("yarn");
+    else {
+      for (const ws of linkedWorkspaces) {
+        await yarn.execute(`yarn workspace ${pkgName} add ${ws}`);
+      }
     }
   } else
     throw new Error(`The path ${process.cwd()} is not the root of monoRepo`);
