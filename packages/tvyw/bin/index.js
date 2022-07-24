@@ -30,6 +30,7 @@ program
 
 program
   .command("add-workspace")
+  .description("Add a new workspace")
   .version(version)
   .argument("[name]", "packageName")
   .option(
@@ -44,12 +45,14 @@ program
 
 program
   .command("add-deps")
+  .description("Install workspaces as dependencies to a workpace")
   .version(version)
   .argument("[name]", "The name of the project to add packages for")
   .action(add);
 
 program
   .command("install")
+  .description("Install to a workspace")
   .version(version)
   .argument("<packages>", "Npm packages you want to install")
   .option("-a, --args [args]", "Arguments to pass to yarn add")
@@ -58,12 +61,14 @@ program
 
 program
   .command("focus")
+  .description("Run script in a workspace")
   .version(version)
   .argument("<cmd>", "Run script in a workspace")
   .action(focus);
 
 program
   .command("remove-workspace")
+  .description("Remove a workspace")
   .version(version)
   .argument("[name]", "The name of the project to remove")
   .action(remove);

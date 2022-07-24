@@ -8,7 +8,7 @@ import { CallBack } from "./types/generics";
 type RemoveCmdType = CallBack<[string | undefined], Promise<void>>;
 
 export const remove: RemoveCmdType = async (target) => {
-  const workspaces = getWorkspacesList(true);
+  const workspaces = getWorkspacesList();
   const wsAnswer = await questionsMonoList.removeWorkspace(target, workspaces);
   if (wsAnswer) {
     const newWorkspaces = workspaces.workspaces.filter(

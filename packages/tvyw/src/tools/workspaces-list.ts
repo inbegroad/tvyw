@@ -34,18 +34,15 @@ const getRaw = () => {
   return raw;
 };
 
-export const getWorkspacesList = (noProjMan = false): WorkspacesListType => {
+export const getWorkspacesList = (): WorkspacesListType => {
   const scriptPath = process.cwd();
   const raw = getRaw();
   const rootPath = appRootPath.path.replace(/\\/g, "/");
   const detailedRaw = raw.map<WorkspaceDetailsType>((r) => {
     const fullPath = path.join(rootPath, r.location).replace(/\\/g, "/");
     const destPath = path.relative(scriptPath, fullPath).replace(/\\/g, "/");
-    let projMan: ProjManType = {
-      repoType: "monoRepo",
-      root: true,
-    };
-    if (!noProjMan) projMan = resolveConfig(fullPath);
+    const projMan = resolveConfig(fullPath);
+
     let tsconfig: TsconfigType = {};
     let disableTypescript = false;
     let isPackage = false;

@@ -6,7 +6,7 @@ import { CallBack } from "./types/generics";
 type AddCmdType = CallBack<[string], Promise<void>>;
 
 export const add: AddCmdType = async (target) => {
-  const workspaces = getWorkspacesList(true);
+  const workspaces = getWorkspacesList();
 
   const added = await questionsMonoList.addkWorkspaceDeps(target, workspaces);
   if (added) {

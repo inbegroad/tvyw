@@ -30,7 +30,7 @@ const linkWorkspaces = async (
   workspaceType: WorkspaceType,
   workspaces?: WorkspacesListType
 ) => {
-  let selectedFrameworks: string[] = [];
+  let selectedWorkspaces: string[] = [];
   if (workspaceType === "package") {
     const wsl = workspaces || getWorkspacesList();
     const { workspaces: wss } = wsl;
@@ -41,7 +41,7 @@ const linkWorkspaces = async (
         name: "selectedFramework",
         message: "Select workspaces to link",
         choices: wss
-          .filter((w) => w.name !== packageName)
+          .filter((w) => w.isPackage && w.name !== packageName)
           .map((ws) => {
             return {
               name: ws.name,
@@ -51,11 +51,11 @@ const linkWorkspaces = async (
           }),
       };
       const { selectedFramework: sfws } = await inquirer.prompt(question);
-      selectedFrameworks = sfws;
+      selectedWorkspaces = sfws;
     }
   }
 
-  return selectedFrameworks;
+  return selectedWorkspaces;
 };
 const selectAWorkspace = async (
   filter?: (workspace: WorkspaceDetailsType) => boolean,
@@ -101,6 +101,7 @@ const addkWorkspaceDeps = async (
   workspaces?: WorkspacesListType
 ) => {
   const wsl = workspaces || getWorkspacesList();
+
   const { workspaces: wss } = wsl;
   let toAdd: WorkspaceDetailsType | undefined;
   if (packageName === undefined) {
@@ -111,22 +112,25 @@ const addkWorkspaceDeps = async (
 
   let added: string[] = [];
 
-  const withDeps = wss
-    .filter((w) => w.isPackage)
-    .filter((w) => !haveDependency(w.name, toAdd?.packageJson.dependencies));
+  const withDeps = wss.filter(
+    (w) =>
+      w.isPackage &&
+      !haveDependency(w.name, toAdd?.packageJson.dependencies || {})
+  );
+
   if (withDeps.length === 0) {
     console.log("This workspace has all dependencies installed");
     return;
   }
 
-  if (withDeps.length > 0 && wss.length > 0) {
+  if (withDeps.length > 0) {
     const question: QuestionCollection<{ added: string[] }> = {
       type: "checkbox",
       name: "added",
       message: `Select workspaces to add ${toAdd?.name} to`,
 
       choices: withDeps
-        .filter((w) => w.name !== toAdd?.name)
+        .filter((w) => w.isPackage && w.name !== toAdd?.name)
         .map((ws) => ({
           name: ws.name,
           value: ws.name,
