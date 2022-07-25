@@ -38,9 +38,38 @@ async function runS(projMan: ProjManType, cmd: ProjManCmdType) {
         ? `ts-node-dev ./${entriesDir}/${entries}.${getEntryExtentionFromFramework(
             "express"
           )} --swc`
-        : //@ts-ignore
-          scriptsEnum[framework][workspaceType][cmd] ||
+        : scriptsEnum[framework][workspaceType][cmd] ||
           `echo ${cmd} script is not avilavle for this package`;
+    switch (framework) {
+      case "express": {
+        switch (cmd) {
+          case "preview": {
+            await execute(`node ./${buildDir}/${entries}.js`);
+            break;
+          }
+          case "dev": {
+            await execute(
+              `ts-node-dev ./${entriesDir}/${entries}.${getEntryExtentionFromFramework(
+                "express"
+              )} --swc`
+            );
+            break;
+          }
+          default: {
+            await execute(scriptsEnum.express[workspaceType][cmd]);
+            break;
+          }
+        }
+        break;
+      }
+      case "custom": {
+        break;
+      }
+      default: {
+        await execute(scriptsEnum[framework][workspaceType][cmd]);
+        break;
+      }
+    }
     await execute(execScript);
   }
 }

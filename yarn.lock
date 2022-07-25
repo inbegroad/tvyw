@@ -1330,7 +1330,7 @@ __metadata:
   dependencies:
     commander: ^9.2.0
     scripts: "workspace:^"
-    tvyw: 0.1.2
+    tvyw: "workspace:^"
   bin:
     create-tvyw: index.js
   languageName: unknown
@@ -4479,36 +4479,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tvyw@npm:0.1.2":
-  version: 0.1.2
-  resolution: "tvyw@npm:0.1.2"
-  dependencies:
-    "@typescript-eslint/eslint-plugin": ^5.19.0
-    "@typescript-eslint/parser": ^5.19.0
-    "@vitejs/plugin-legacy": ^1.8.2
-    "@yarnpkg/shell": ^4.0.0-rc.6
-    app-root-path: ^3.0.0
-    camelcase: ^6.3.0
-    commander: ^9.2.0
-    concurrently: 7.2.2
-    eslint: ^8.19.0
-    eslint-config-prettier: ^8.5.0
-    fs-extra: ^10.1.0
-    inquirer: ^8.2.4
-    ndjson-to-json-text: ^1.0.2
-    path-browserify: ^1.0.1
-    prettier: ^2.7.1
-    rollup-plugin-node-builtins: ^2.1.2
-    typescript: 4.7.4
-    vite: 2.9.14
-    zod: ^3.17.3
-  bin:
-    tvyw: bin/index.js
-  checksum: 2678f6819169b022670fa778d9428aa2022c4b2ca06c03b924fdd1dcdb918391bc41490490c4e03de2cd66107280b625ecec3f8ae8496df295d069afb6ef6334
-  languageName: node
-  linkType: hard
-
-"tvyw@workspace:packages/tvyw":
+"tvyw@workspace:^, tvyw@workspace:packages/tvyw":
   version: 0.0.0-use.local
   resolution: "tvyw@workspace:packages/tvyw"
   dependencies:

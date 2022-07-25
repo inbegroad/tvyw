@@ -91,10 +91,6 @@ export default defineConfig({
       tsconfig: resolveToDirname("tsconfig.json"),
       useTsconfigDeclarationDir: true,
     }),
-    resolvePlugin({
-      preferBuiltins: false,
-      resolveOnly: external,
-    }),
     delPlugin({
       targets: ["./dist/**/*", "./types/**/*"],
       verbose: isDev,
@@ -102,5 +98,10 @@ export default defineConfig({
       runOnce: isDev,
     }),
     !isDev && terser(),
+
+    resolvePlugin({
+      preferBuiltins: false,
+      resolveOnly: external,
+    }),
   ],
 });

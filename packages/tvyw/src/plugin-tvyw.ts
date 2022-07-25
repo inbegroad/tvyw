@@ -8,6 +8,8 @@ import { getEntryExtentionFromFramework } from "./tools/extention-from-framework
 import { getExtFromBuildFile } from "./tools/get-ext-from-build-file";
 import { resolveConfig } from "./tools/resolveProjMan";
 import { resolve } from "path";
+import delPlugin from "rollup-plugin-delete";
+import typescriptPlugin from "rollup-plugin-typescript2";
 
 export type TvywPluginPropsType = {
   disableExternal?: boolean;
@@ -39,7 +41,6 @@ export const vitePluginTvyw = (
         const { buildDir, entries, entriesDir, framework, workspaceType } =
           projMan;
 
-        //@ts-ignore
         const plugins: Plugin[] =
           workspaceType === "app"
             ? [
@@ -52,7 +53,18 @@ export const vitePluginTvyw = (
                   targets: ["defaults", "not IE 11"],
                 }),
               ]
-            : [];
+            : [
+                typescriptPlugin({
+                  tsconfig: resolveToDirname("tsconfig.json"),
+                  useTsconfigDeclarationDir: true,
+                }),
+                delPlugin({
+                  targets: [`${projMan.declarationDir}/**/*`],
+                  verbose: dev,
+                  hook: "buildStart",
+                  runOnce: dev,
+                }),
+              ];
 
         const formats: LibraryFormats[] = ["es", "umd", "cjs"];
         const externals = externalsTool({
@@ -71,6 +83,13 @@ export const vitePluginTvyw = (
           },
 
           build: {
+            commonjsOptions: {
+              ...config.build?.commonjsOptions,
+              include: [
+                ...(externals.external || []).map((ex) => `/${ex}/`),
+                projMan.repoType === "monoRepo" ? "/node_modules/" : "",
+              ],
+            },
             emptyOutDir: !dev,
             watch: dev
               ? {

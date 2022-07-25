@@ -23,8 +23,8 @@ export type ProjManCmdType = z.infer<typeof projManCmdZod>;
 
 export type ScriptsEnumType = {
   [key in FrameworksType]: {
-    [key in WorkspaceType]?: {
-      [key in ProjManCmdType]?: string | undefined;
+    [key in WorkspaceType]: {
+      [key in ProjManCmdType]: string;
     };
   };
 };
