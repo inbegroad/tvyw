@@ -34,6 +34,7 @@ export const run = async (cmd: string) => {
 
     if (versionJson.name === pkgJaon.name) {
       versionJson.version = pkgJaon.version;
+      versionJson.dev = cmd === "dev";
       writeFileSync(vConfigFilePath, JSON.stringify(versionJson, null, 2));
       await execute(scripts[cmd]);
     }

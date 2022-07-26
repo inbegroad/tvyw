@@ -2,5 +2,5 @@
   "name": "tvyw",
   "version": "0.1.23",
   "source": "../",
-  "dev": true
+  "dev": false
 }
