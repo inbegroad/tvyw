@@ -18,9 +18,12 @@ type Props = CallBack<
   Return
 >;
 
-const getAllImports = ({ dependencies }: PackageJsonType, isPackage: boolean) =>
+const getAllImports = (
+  { dependencies = {} }: PackageJsonType,
+  isPackage: boolean
+) =>
   [...(!isPackage ? nodeModulesEnum : [])].concat(
-    !isPackage ? [] : dependencies ? Object.keys(dependencies) : []
+    !isPackage ? [] : Object.keys(dependencies)
   );
 
 export const externalsTool: Props = ({ packageJson, isPackage }) => {

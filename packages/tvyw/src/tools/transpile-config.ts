@@ -19,7 +19,7 @@ export const transpileConfig = (ts: string, js: string) => {
   if (!existsSync(cachDir)) mkdirsSync(cachDir);
   writeFileSync(js, transpiledCode, { encoding: "utf8" });
 
-  const projMan = require(js).default as ProjManType;
+  const projMan = require(js).default as Required<ProjManType>;
   unlinkSync(js);
   return projMan;
 };

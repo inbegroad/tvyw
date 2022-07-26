@@ -13,8 +13,9 @@ const appScripts: ScriptsEnumType[FrameworksType][WorkspaceType] = {
   test: "echo test is not implemented",
 };
 const packageScripts: ScriptsEnumType[FrameworksType][WorkspaceType] = {
-  build: "vite build",
-  dev: "vite build --mode development",
+  build:
+    'yarn tsc --build --clean && concurrently "yarn vite build" "yarn tsc"',
+  dev: 'yarn tsc --build --clean && concurrently "yarn vite build --mode development" "yarn tsc -w"',
   lint: "echo lint is not implemented",
   preview: "echo preview is not implemented",
   scaf: "echo scaf is not implemented",

@@ -105,7 +105,6 @@ export const getDependencies = ({
           "@types/react": versions["@types/react"],
           "@types/react-dom": versions["@types/react-dom"],
           "eslint-config-react-app": "7.0.1",
-          "@vitejs/plugin-react": versions["@vitejs/plugin-react"],
           ...forFws,
           typescript: versions["typescript"],
           vite: versions["vite"],
@@ -115,6 +114,7 @@ export const getDependencies = ({
           eslint: versions["eslint"],
           "eslint-config-prettier": versions["eslint-config-prettier"],
           prettier: versions["prettier"],
+          "@vitejs/plugin-react": versions["@vitejs/plugin-react"],
         },
         peerDependencies: {
           ...props.peerDependencies,

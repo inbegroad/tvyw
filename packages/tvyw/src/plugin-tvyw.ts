@@ -1,5 +1,5 @@
 import legacy from "@vitejs/plugin-legacy";
-import { ConfigEnv, LibraryFormats, Plugin, UserConfig } from "vite";
+import { ConfigEnv, LibraryFormats, PluginOption, UserConfig } from "vite";
 import { readPackageJsonSync } from "./tools/read";
 import { isWorkspace } from "./tools/workspaces-list";
 import { dedupArray } from "./tools/set-to-array";
@@ -7,22 +7,20 @@ import { externalsTool } from "./tools/externals-tool";
 import { getEntryExtentionFromFramework } from "./tools/extention-from-framework";
 import { getExtFromBuildFile } from "./tools/get-ext-from-build-file";
 import { resolveConfig } from "./tools/resolveProjMan";
-import { resolve } from "path";
-import delPlugin from "rollup-plugin-delete";
-import typescriptPlugin from "rollup-plugin-typescript2";
 
 export type TvywPluginPropsType = {
   disableExternal?: boolean;
 };
 export const vitePluginTvyw = (
   { disableExternal }: TvywPluginPropsType = { disableExternal: false }
-): Plugin => {
+): PluginOption => {
+  const projMan = resolveConfig();
+  const packageJson = readPackageJsonSync();
   return {
     name: "vite-plugin-tvyw",
+
     config: (config: UserConfig, { mode }: ConfigEnv): UserConfig => {
       {
-        const projMan = resolveConfig();
-        const packageJson = readPackageJsonSync();
         let dependencies: string[] | undefined;
         if (packageJson.dependencies) {
           dependencies = Object.keys(packageJson.dependencies).filter((dep) =>
@@ -41,7 +39,7 @@ export const vitePluginTvyw = (
         const { buildDir, entries, entriesDir, framework, workspaceType } =
           projMan;
 
-        const plugins: Plugin[] =
+        const plugins: PluginOption[] =
           workspaceType === "app"
             ? [
                 legacy({
@@ -53,47 +51,35 @@ export const vitePluginTvyw = (
                   targets: ["defaults", "not IE 11"],
                 }),
               ]
-            : [
-                typescriptPlugin({
-                  tsconfig: resolveToDirname("tsconfig.json"),
-                  useTsconfigDeclarationDir: true,
-                }),
-                delPlugin({
-                  targets: [`${projMan.declarationDir}/**/*`],
-                  verbose: dev,
-                  hook: "buildStart",
-                  runOnce: dev,
-                }),
-              ];
-
-        const formats: LibraryFormats[] = ["es", "umd", "cjs"];
+            : [];
+        const formats: LibraryFormats[] = ["umd", "cjs", "es"];
         const externals = externalsTool({
           packageJson: readPackageJsonSync(),
           isPackage: workspaceType === "package",
         });
+
         return {
           clearScreen: false,
 
           root: workspaceType === "app" ? entriesDir : undefined,
           plugins: [...plugins, ...(config.plugins || [])],
-
+          esbuild: {
+            ...config.esbuild,
+            logOverride: {
+              ...(config.esbuild && config.esbuild.logOverride),
+              "this-is-undefined-in-esm": "silent",
+            },
+          },
           optimizeDeps: {
             ...config.optimizeDeps,
-            exclude,
+            exclude: config.optimizeDeps?.exclude?.concat(exclude || []),
           },
 
           build: {
-            commonjsOptions: {
-              ...config.build?.commonjsOptions,
-              include: [
-                ...(externals.external || []).map((ex) => `/${ex}/`),
-                projMan.repoType === "monoRepo" ? "/node_modules/" : "",
-              ],
-            },
             emptyOutDir: !dev,
             watch: dev
               ? {
-                  clearScreen: false,
+                  clearScreen: !dev,
                 }
               : undefined,
             minify: !dev,
@@ -137,9 +123,3 @@ export const vitePluginTvyw = (
     },
   };
 };
-
-export function resolveToDirname(name: string) {
-  return resolve(__dirname, name);
-}
-
-// export const tvyw:Plugin =
