@@ -66,6 +66,8 @@ export const getDependencies = ({
           "ts-node-dev": versions["ts-node-dev"],
           typescript: versions["typescript"],
           vite: versions["vite"],
+
+          rimraf: versions["rimraf"],
         },
       };
     case "preact":
@@ -83,6 +85,8 @@ export const getDependencies = ({
           typescript: versions["typescript"],
           "eslint-config-preact": versions["eslint-config-preact"],
           vite: versions["vite"],
+
+          rimraf: versions["rimraf"],
           "@typescript-eslint/eslint-plugin":
             versions["@typescript-eslint/eslint-plugin"],
           "@typescript-eslint/parser": versions["@typescript-eslint/parser"],
@@ -108,6 +112,8 @@ export const getDependencies = ({
           ...forFws,
           typescript: versions["typescript"],
           vite: versions["vite"],
+
+          rimraf: versions["rimraf"],
           "@typescript-eslint/eslint-plugin":
             versions["@typescript-eslint/eslint-plugin"],
           "@typescript-eslint/parser": versions["@typescript-eslint/parser"],
@@ -139,6 +145,8 @@ export const getDependencies = ({
           tslib: versions["tslib"],
           typescript: versions["typescript"],
           vite: versions["vite"],
+
+          rimraf: versions["rimraf"],
           "@typescript-eslint/eslint-plugin":
             versions["@typescript-eslint/eslint-plugin"],
           "@typescript-eslint/parser": versions["@typescript-eslint/parser"],
@@ -156,6 +164,8 @@ export const getDependencies = ({
           ...forFws,
           typescript: versions["typescript"],
           vite: versions["vite"],
+
+          rimraf: versions["rimraf"],
           "@typescript-eslint/eslint-plugin":
             versions["@typescript-eslint/eslint-plugin"],
           "@typescript-eslint/parser": versions["@typescript-eslint/parser"],
@@ -179,6 +189,8 @@ export const getDependencies = ({
           ...forFws,
           typescript: versions["typescript"],
           vite: versions["vite"],
+
+          rimraf: versions["rimraf"],
           "vue-tsc": versions["vue-tsc"],
           "@typescript-eslint/eslint-plugin":
             versions["@typescript-eslint/eslint-plugin"],

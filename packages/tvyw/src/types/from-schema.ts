@@ -28,3 +28,11 @@ export type ScriptsEnumType = {
     };
   };
 };
+
+export type ScriptsType = {
+  [key in ProjManCmdType]: string;
+};
+
+export type PackageScriptType = (declarationDir: string) => {
+  [key in ProjManCmdType]: string;
+};

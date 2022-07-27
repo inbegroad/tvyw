@@ -128,10 +128,7 @@ export const buildAProject: BuildAProjectType = async ({
               framework === "express"
                 ? true
                 : tsconfig.compilerOptions?.esModuleInterop,
-            emitDeclarationOnly:
-              framework === "preact"
-                ? tsconfig.compilerOptions?.emitDeclarationOnly
-                : true,
+            emitDeclarationOnly: true,
             composite:
               repoType === "monoRepo"
                 ? true

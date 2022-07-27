@@ -5,6 +5,8 @@ import { ProjManCmdType } from "./types/from-schema";
 import { getEntryExtentionFromFramework } from "./tools/extention-from-framework";
 import { resolveConfig } from "./tools/resolveProjMan";
 import { scriptsEnum } from "./defs";
+import { emptyDirSync } from "fs-extra";
+import { getVersionConfig } from "./tools/version-config";
 
 export const run = async (cmd: ProjManCmdType) => {
   if (cmd === "scaf") {
@@ -25,21 +27,20 @@ export const run = async (cmd: ProjManCmdType) => {
   }
 };
 
-async function runS(projMan: ProjManType, cmd: ProjManCmdType) {
+async function runS(projMan: Required<ProjManType>, cmd: ProjManCmdType) {
+  if (
+    ((projMan.repoType === "monoRepo" && !projMan.root) ||
+      projMan.repoType === "single") &&
+    projMan.workspaceType === "package"
+  ) {
+    emptyDirSync(projMan.declarationDir);
+  }
   if (
     (projMan.repoType === "monoRepo" && !projMan.root) ||
     projMan.repoType === "single"
   ) {
     const { buildDir, entries, entriesDir, framework, workspaceType } = projMan;
-    const execScript =
-      framework === "express" && cmd === "preview"
-        ? `node ./${buildDir}/${entries}.js`
-        : framework === "express" && cmd === "dev"
-        ? `ts-node-dev ./${entriesDir}/${entries}.${getEntryExtentionFromFramework(
-            "express"
-          )} --swc`
-        : scriptsEnum[framework][workspaceType][cmd] ||
-          `echo ${cmd} script is not avilavle for this package`;
+    const { name } = getVersionConfig();
     switch (framework) {
       case "express": {
         switch (cmd) {
@@ -63,6 +64,10 @@ async function runS(projMan: ProjManType, cmd: ProjManCmdType) {
         break;
       }
       case "custom": {
+        console.log(
+          `You configured this workspace's framework as '"custom" so ${name} will not run ${cmd} on it`
+        );
+
         break;
       }
       default: {
@@ -70,7 +75,6 @@ async function runS(projMan: ProjManType, cmd: ProjManCmdType) {
         break;
       }
     }
-    await execute(execScript);
   }
 }
 

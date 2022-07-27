@@ -1,4 +1,4 @@
-export const versions: Record<string, string> = {
+export const versions = {
   vue: "3.2.37",
   "@vitejs/plugin-vue": "2.3.3",
   concurrently: "7.2.2",
@@ -8,6 +8,7 @@ export const versions: Record<string, string> = {
   "@vitejs/plugin-react": "1.3.2",
   typescript: "4.7.4",
   vite: "2.9.14",
+  eslint: "^8.19.0",
   "@sveltejs/vite-plugin-svelte": "1.0.0-next.49",
   "@tsconfig/svelte": "3.0.0",
   svelte: "3.49.0",
@@ -33,4 +34,5 @@ export const versions: Record<string, string> = {
   "@typescript-eslint/parser": "^5.19.0",
   "eslint-config-prettier": "^8.5.0",
   prettier: "^2.7.1",
+  rimraf: "^3.0.2",
 };
