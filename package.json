@@ -6,10 +6,13 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "turbo run build",
-    "deploy": "turbo run deploy",
-    "dev": "turbo run dev",
-    "test": "turbo run test"
+    "scripts": "yarn workspace scripts",
+    "scripts:build": "yarn scripts run build",
+    "scripts:dev": "yarn scripts run dev",
+    "tvyw": "yarn scripts:build && yarn workspace tvyw",
+    "build": "yarn tvyw build",
+    "dev": "yarn tvyw",
+    "deploy": "yarn tvyw deploy"
   },
   "dependencies": {
     "turbo": "^1.3.1"

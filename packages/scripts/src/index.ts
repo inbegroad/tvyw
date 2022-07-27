@@ -22,18 +22,34 @@ const scripts = {
 // };
 
 const vConfigFilePath = resolve("../tvyw/src/version.json");
-export const run = async (cmd: string) => {
+export const run = async (
+  cmd: string,
+  { toVersion }: { toVersion?: string }
+) => {
   const versionJson: VersionJson = JSON.parse(
     readFileSync(resolve(vConfigFilePath), "utf8")
   );
-  if (cmd === "dev" || cmd === "build") {
-    const pkgJaon = JSON.parse(
-      readFileSync(join(process.cwd(), "package.json"), "utf8")
-    );
-    console.log(`Running ${cmd} on ${pkgJaon.name}`);
+  const cPkgJsonPath = join(
+    process.cwd(),
+    "..",
+    `create-${versionJson.name}`,
+    "package.json"
+  );
+  const pkgJsonPath = join(process.cwd(), "package.json");
+  const cPkgJson = JSON.parse(readFileSync(cPkgJsonPath, "utf8"));
+  const pkgJson = JSON.parse(readFileSync(pkgJsonPath, "utf8"));
 
-    if (versionJson.name === pkgJaon.name) {
-      versionJson.version = pkgJaon.version;
+  if (cmd === "dev" || cmd === "build") {
+    console.log(`Running ${cmd} on ${pkgJson.name}`);
+    if (toVersion !== undefined) {
+      cPkgJson.version = version(toVersion, cPkgJson.version);
+      writeFileSync(cPkgJsonPath, JSON.stringify(cPkgJson, null, 2));
+      pkgJson.version = version(toVersion, pkgJson.version);
+      writeFileSync(pkgJsonPath, JSON.stringify(pkgJson, null, 2));
+    }
+
+    if (versionJson.name === pkgJson.name) {
+      versionJson.version = pkgJson.version;
       versionJson.dev = cmd === "dev";
       writeFileSync(vConfigFilePath, JSON.stringify(versionJson, null, 2));
       await execute(scripts[cmd]);
@@ -154,3 +170,19 @@ export const ignoreFiles: IgnoreFiles = function (props) {
     },
   };
 };
+
+function version(arg: string, version: string) {
+  const [major, minor, patch] = version
+    .split(".")
+    .map((letr) => parseInt(letr));
+  switch (arg) {
+    case "major":
+      return `${major + 1}.0.0`;
+    case "minor":
+      return `${major}.${minor + 1}.0`;
+    case "patch":
+      return `${major}.${minor}.${patch + 1}`;
+    default:
+      return version;
+  }
+}

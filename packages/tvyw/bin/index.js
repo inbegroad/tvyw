@@ -12,7 +12,7 @@ const {
   workspaceTypeEnum,
   install,
   focus,
-  deploy,
+  // deploy,
 } = require("..");
 
 const program = new commander.Command(name)
@@ -21,12 +21,12 @@ const program = new commander.Command(name)
   .argument("[cmd]", `Command: ${projManCmdEnum.join(" | ")} `, "dev")
   .action(run);
 
-program
-  .command("deploy")
-  .description("Deploy to npm")
-  .version(version)
-  .argument("[name]", "Name of the package")
-  .action(deploy);
+// program
+//   .command("deploy")
+//   .description("Deploy to npm")
+//   .version(version)
+//   .argument("[name]", "Name of the package")
+//   .action(deploy);
 
 program
   .command("add-workspace")
