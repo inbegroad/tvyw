@@ -10,15 +10,16 @@ const appScripts: ScriptsType = {
   build: "vite build",
   preview: "vite preview",
   lint: "echo lint is not implemented",
+  start: "echo start is not implemented",
   scaf: "echo scaf is not implemented",
   test: "echo test is not implemented",
 };
 const packageScripts: ScriptsEnumType[FrameworksType][WorkspaceType] = {
-  build:
-    'concurrently "yarn vite build" "yarn tsc --build --clean && yarn tsc"',
-  dev: 'concurrently "yarn vite build --mode development" "yarn tsc --build --clean && yarn tsc -w"',
+  build: 'concurrently "yarn vite build" "yarn tsc"',
+  dev: "vite build --mode development",
   lint: "echo lint is not implemented",
   preview: "echo preview is not implemented",
+  start: "echo start is not implemented",
   scaf: "echo scaf is not implemented",
   test: "echo test is not implemented",
 };
@@ -28,6 +29,7 @@ export const scriptsEnum: ScriptsEnumType = {
     app: {
       build: "echo build is not implemented",
       dev: "echo dev is not implemented",
+      start: "echo start is not implemented",
       lint: "echo lint is not implemented",
       preview: "echo preview is not implemented",
       scaf: "echo scaf is not implemented",
@@ -38,6 +40,7 @@ export const scriptsEnum: ScriptsEnumType = {
       dev: "echo dev is not implemented",
       lint: "echo lint is not implemented",
       preview: "echo preview is not implemented",
+      start: "echo start is not implemented",
       scaf: "echo scaf is not implemented",
       test: "echo test is not implemented",
     },

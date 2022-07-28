@@ -40,6 +40,7 @@ export const projManCmdEnum = [
   "test",
   "scaf",
   "preview",
+  "start",
 ] as const;
 
 export const nodeModulesEnum = [

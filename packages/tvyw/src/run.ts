@@ -39,16 +39,25 @@ async function runS(projMan: Required<ProjManType>, cmd: ProjManCmdType) {
     (projMan.repoType === "monoRepo" && !projMan.root) ||
     projMan.repoType === "single"
   ) {
-    const { buildDir, entries, entriesDir, framework, workspaceType } = projMan;
+    const {
+      buildDir,
+      entries,
+      entriesDir,
+      declarationDir,
+      framework,
+      workspaceType,
+    } = projMan;
     const { name } = getVersionConfig();
     switch (framework) {
       case "express": {
         switch (cmd) {
-          case "preview": {
+          case "preview":
+          case "start": {
             await execute(`node ./${buildDir}/${entries}.js`);
             break;
           }
           case "dev": {
+            emptyDirSync(`./${declarationDir}`);
             await execute(
               `ts-node-dev ./${entriesDir}/${entries}.${getEntryExtentionFromFramework(
                 "express"
@@ -57,6 +66,7 @@ async function runS(projMan: Required<ProjManType>, cmd: ProjManCmdType) {
             break;
           }
           default: {
+            emptyDirSync(`./${declarationDir}`);
             await execute(scriptsEnum.express[workspaceType][cmd]);
             break;
           }
@@ -71,6 +81,7 @@ async function runS(projMan: Required<ProjManType>, cmd: ProjManCmdType) {
         break;
       }
       default: {
+        emptyDirSync(`./${declarationDir}`);
         await execute(scriptsEnum[framework][workspaceType][cmd]);
         break;
       }

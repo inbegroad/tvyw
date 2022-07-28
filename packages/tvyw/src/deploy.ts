@@ -36,7 +36,10 @@ async function dep() {
   delete pkgJson.scripts;
   delete pkgJson.devDependencies;
   await writePackageJson(pkgJson);
-  await execute("npm publish");
+  await execute("echo \n\n\npublish............\n\n\n");
+  // await execute("npm publish");
+
   const temp = await readPackageJson(cachedFilePath);
+  console.log({ temp, pkgJson });
   await writePackageJson(temp, cachedFilePath);
 }
