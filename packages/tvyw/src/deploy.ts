@@ -1,7 +1,7 @@
 import { execute } from "@yarnpkg/shell";
 import camelcase from "camelcase";
 import { existsSync, mkdirSync } from "fs-extra";
-import { join } from "path";
+import { join, parse } from "path";
 import { readPackageJson } from "./tools/read";
 import { resolveConfig } from "./tools/resolveProjMan";
 import { getVersionConfig } from "./tools/version-config";
@@ -36,21 +36,20 @@ async function dep(projMan: Required<ProjManType>) {
       projMan.fullPath,
       ...projMan.location.split("/").map(() => ".."),
       "node_modules",
-      `.cache/${versionJson.name}/${camelcase(pkgJson.name)}`
+      `.cache/${versionJson.name}/${parse(projMan.location).name}`
     );
 
     if (!existsSync(cachedPath)) mkdirSync(cachedPath, { recursive: true });
     const cachedFilePath = join(
       cachedPath,
-      `${camelcase(pkgJson.name)}.temp.json`
+      `${parse(projMan.location).name}.temp.json`
     );
 
     await writePackageJson(pkgJson, cachedFilePath);
     delete pkgJson.scripts;
     delete pkgJson.devDependencies;
     await writePackageJson(pkgJson);
-    await execute("echo \n\n\npublish............\n\n\n");
-    // await execute("npm publish");
+    await execute("npm publish");
 
     const temp = await readPackageJson(cachedFilePath);
     console.log({ temp, pkgJson });
