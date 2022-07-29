@@ -12,7 +12,7 @@ export const getScripts = (
     build: string;
     dev: string;
     preview?: string;
-    "packages:deploy"?: string;
+    deploy?: string;
   } = {
     build: `${name} build`,
     dev: `${name}`,
@@ -20,7 +20,7 @@ export const getScripts = (
   if (isPackage) {
     defaultScripts["preview"] = `${name} preview`;
     if (isDeploy) {
-      defaultScripts["packages:deploy"] = `${name} packages:deploy`;
+      defaultScripts.deploy = `${name} deploy`;
     }
   }
   switch (framework) {
@@ -49,6 +49,7 @@ export const getScripts = (
         dev: `${name}`,
         preview: `${name} preview`,
         start: `${name} start`,
+        deploy: `${name} deploy`,
       };
   }
 };

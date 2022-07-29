@@ -1,5 +1,4 @@
 import { execute } from "@yarnpkg/shell";
-import camelcase from "camelcase";
 import { existsSync, mkdirSync } from "fs-extra";
 import { join, parse } from "path";
 import { readPackageJson } from "./tools/read";
