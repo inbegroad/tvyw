@@ -7,13 +7,13 @@ import { getVersionConfig } from "./version-config";
 const { name } = getVersionConfig();
 
 export const writeSync = <T>(filePath: string, content: T) =>
-  fsExtra.writeJsonSync(path.resolve(filePath), content, {
+  fsExtra.writeJsonSync(filePath, content, {
     spaces: 2,
     encoding: "utf8",
     replacer: null,
   });
 export const write = async <T>(filePath: string, content: T) =>
-  await fsExtra.writeJson(path.resolve(filePath), content, {
+  await fsExtra.writeJson(filePath, content, {
     spaces: 2,
     encoding: "utf8",
     replacer: null,

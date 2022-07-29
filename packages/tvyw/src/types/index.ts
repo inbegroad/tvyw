@@ -18,6 +18,8 @@ type ProjManVal = {
   typeSource?: string;
   gitIgnore?: string;
   npmIgnore?: string;
+  fullPath?: string;
+  location?: string;
 };
 
 export type ProjManType =

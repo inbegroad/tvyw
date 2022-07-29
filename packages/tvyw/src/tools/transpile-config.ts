@@ -8,9 +8,14 @@ import {
 import { parse } from "path";
 import typescript from "typescript";
 import { ProjManType } from "../types";
+import { getWorkspacesListRaw } from "./workspaces-list";
 
-export const transpileConfig = (ts: string, js: string) => {
+export const transpileConfig = (
+  ts: string,
+  js: string
+): Required<ProjManType> => {
   const codeTs = readFileSync(ts, "utf8").toString();
+
   const transpiledCode = typescript.transpileModule(codeTs, {
     compilerOptions: { isolatedModules: true },
   }).outputText;
@@ -21,5 +26,12 @@ export const transpileConfig = (ts: string, js: string) => {
 
   const projMan = require(js).default as Required<ProjManType>;
   unlinkSync(js);
-  return projMan;
+  if (projMan.repoType === "monoRepo" && projMan.root) {
+    return projMan;
+  } else {
+    const raw = getWorkspacesListRaw().filter(
+      ({ name }) => name === projMan.packageName
+    )[0];
+    return { ...projMan, ...raw };
+  }
 };

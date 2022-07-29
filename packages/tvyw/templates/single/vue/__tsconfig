@@ -9,6 +9,7 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "disableSourceOfProjectReferenceRedirect": false,
     "esModuleInterop": true,
     "lib": [
       "esnext",

@@ -7,6 +7,7 @@ import { externalsTool } from "./tools/externals-tool";
 import { getEntryExtentionFromFramework } from "./tools/extention-from-framework";
 import { getExtFromBuildFile } from "./tools/get-ext-from-build-file";
 import { resolveConfig } from "./tools/resolveProjMan";
+import { resolve } from "path";
 
 export type TvywPluginPropsType = {
   disableExternal?: boolean;
@@ -28,7 +29,7 @@ export const vitePluginTvyw = (
           );
         }
         const exclude = dedupArray(
-          ...(config.optimizeDeps?.include || []),
+          ...(config.optimizeDeps?.exclude || []),
           ...(dependencies || [])
         );
         if (projMan.repoType === "monoRepo" && projMan.root)
@@ -61,7 +62,10 @@ export const vitePluginTvyw = (
         return {
           clearScreen: false,
 
-          root: workspaceType === "app" ? entriesDir : undefined,
+          root:
+            workspaceType === "app"
+              ? resolveFromDirName(entriesDir)
+              : undefined,
           plugins: [...plugins, ...(config.plugins || [])],
           esbuild: {
             ...config.esbuild,
@@ -105,13 +109,15 @@ export const vitePluginTvyw = (
                 warn(warning);
               },
             },
-            outDir: workspaceType === "app" ? `../${buildDir}` : buildDir,
+            outDir: resolveFromDirName(buildDir),
             lib: workspaceType === "package" && {
               name: entries,
-              entry: `${entriesDir}/${entries}.${getEntryExtentionFromFramework(
-                framework,
-                workspaceType
-              )}`,
+              entry: resolveFromDirName(
+                `${entriesDir}/${entries}.${getEntryExtentionFromFramework(
+                  framework,
+                  workspaceType
+                )}`
+              ),
               formats,
               fileName: (format) => `[name]${getExtFromBuildFile(format)}`,
               ...config.build?.lib,
@@ -123,3 +129,7 @@ export const vitePluginTvyw = (
     },
   };
 };
+
+function resolveFromDirName(src: string) {
+  return resolve(process.cwd(), src);
+}

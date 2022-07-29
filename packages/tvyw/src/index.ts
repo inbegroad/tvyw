@@ -7,6 +7,9 @@ export {
 
 export * from "./tools/workspaces-list";
 
+export * from "./tools/write";
+export * from "./tools/read";
+
 export { add } from "./add";
 export { addWorkspace } from "./add-workspace";
 export { createProject } from "./create-project";

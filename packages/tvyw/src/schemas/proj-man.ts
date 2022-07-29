@@ -33,6 +33,8 @@ const projectSchema = {
   typeSource: z.string().optional(),
   gitIgnore: z.string().optional(),
   npmIgnore: z.string().optional(),
+  fullPath: z.string().optional(),
+  location: z.string().optional(),
   // workspaceStructure: workspaceStructureZod,
 };
 

@@ -5,6 +5,5 @@ dist
 *.gitignore
 *.lock
 *.npmignore
-examples
 templates
 bin

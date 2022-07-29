@@ -5,7 +5,7 @@ import jsonPlugin from "@rollup/plugin-json";
 import resolvePlugin from "@rollup/plugin-node-resolve";
 import { terser } from "rollup-plugin-terser";
 import delPlugin from "rollup-plugin-delete";
-import typescriptPlugin from "rollup-plugin-typescript2";
+import ts from "rollup-plugin-typescript2";
 import camelcase from "camelcase";
 import { dependencies } from "./package.json";
 import { build, ignoreFiles } from "scripts";
@@ -87,8 +87,9 @@ export default defineConfig({
     jsonPlugin(),
     eslintPlugin(),
     commonjsPlugin(),
-    typescriptPlugin({
-      tsconfig: resolveToDirname("tsconfig.json"),
+    ts({
+      tsconfig: resolveToDirname("./tsconfig.json"),
+      typescript: require("typescript"),
       useTsconfigDeclarationDir: true,
     }),
     delPlugin({

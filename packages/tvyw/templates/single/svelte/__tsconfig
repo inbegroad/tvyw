@@ -5,6 +5,7 @@
     "useDefineForClassFields": true,
     "module": "esnext",
     "resolveJsonModule": true,
+    "disableSourceOfProjectReferenceRedirect": false,
     "baseUrl": ".",
     "allowJs": true,
     "checkJs": true

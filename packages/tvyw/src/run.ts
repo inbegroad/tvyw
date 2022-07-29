@@ -5,7 +5,6 @@ import { ProjManCmdType } from "./types/from-schema";
 import { getEntryExtentionFromFramework } from "./tools/extention-from-framework";
 import { resolveConfig } from "./tools/resolveProjMan";
 import { scriptsEnum } from "./defs";
-import { emptyDirSync } from "fs-extra";
 import { getVersionConfig } from "./tools/version-config";
 
 export const run = async (cmd: ProjManCmdType) => {
@@ -29,24 +28,10 @@ export const run = async (cmd: ProjManCmdType) => {
 
 async function runS(projMan: Required<ProjManType>, cmd: ProjManCmdType) {
   if (
-    ((projMan.repoType === "monoRepo" && !projMan.root) ||
-      projMan.repoType === "single") &&
-    projMan.workspaceType === "package"
-  ) {
-    emptyDirSync(projMan.declarationDir);
-  }
-  if (
     (projMan.repoType === "monoRepo" && !projMan.root) ||
     projMan.repoType === "single"
   ) {
-    const {
-      buildDir,
-      entries,
-      entriesDir,
-      declarationDir,
-      framework,
-      workspaceType,
-    } = projMan;
+    const { buildDir, entries, entriesDir, framework, workspaceType } = projMan;
     const { name } = getVersionConfig();
     switch (framework) {
       case "express": {
@@ -57,7 +42,6 @@ async function runS(projMan: Required<ProjManType>, cmd: ProjManCmdType) {
             break;
           }
           case "dev": {
-            emptyDirSync(`./${declarationDir}`);
             await execute(
               `ts-node-dev ./${entriesDir}/${entries}.${getEntryExtentionFromFramework(
                 "express"
@@ -66,7 +50,6 @@ async function runS(projMan: Required<ProjManType>, cmd: ProjManCmdType) {
             break;
           }
           default: {
-            emptyDirSync(`./${declarationDir}`);
             await execute(scriptsEnum.express[workspaceType][cmd]);
             break;
           }
@@ -81,7 +64,6 @@ async function runS(projMan: Required<ProjManType>, cmd: ProjManCmdType) {
         break;
       }
       default: {
-        emptyDirSync(`./${declarationDir}`);
         await execute(scriptsEnum[framework][workspaceType][cmd]);
         break;
       }

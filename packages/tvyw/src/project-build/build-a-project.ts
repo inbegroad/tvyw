@@ -1,14 +1,17 @@
+import { emptyDirSync, ensureDir, existsSync, removeSync } from "fs-extra";
+import { join } from "path";
 import { calculateExcludes } from "../tools/calculate-excludes";
 import { calculateIncludes } from "../tools/calculate-includes";
 import { calculateReferences } from "../tools/calculate-references";
 import { getPackageJsonFiles } from "../tools/ge-pkgjson-files";
 import { processPackageJson } from "../tools/process-package-json";
-import { refPackages } from "../tools/relative-packages";
-import { getVersionConfig } from "../tools/version-config";
+// import { refPackages } from "../tools/relative-packages";
+// import { getVersionConfig } from "../tools/version-config";
 import {
   findWorkspaceByName,
   getWorkspacesList,
   isWorkspaceDep,
+  WorkspaceDetailsType,
   WorkspacesListType,
 } from "../tools/workspaces-list";
 import { writePackageJson, writeTsconfig } from "../tools/write";
@@ -23,7 +26,7 @@ export type BuildAProjectType = CallBack<
     entries?: string;
     declarationDir?: string;
     packageName: string;
-    projMan: ProjManType;
+    projMan: Required<ProjManType>;
     extraInclude?: string[];
     entriesDir?: string;
     repoType: RepoType;
@@ -52,21 +55,25 @@ export const buildAProject: BuildAProjectType = async ({
   // packageJson
   const wss = workspaces || getWorkspacesList();
   const found = findWorkspaceByName(packageName, wss);
-  const { dev } = getVersionConfig();
+  const wsDeps: WorkspaceDetailsType[] = [];
+  // const { dev } = getVersionConfig();
   if (found !== undefined) {
     const { packageJson, tsconfig = {} } = found;
     if (projMan.repoType === "monoRepo" && !projMan.root) {
       const tempDeps = packageJson.dependencies || {};
-      const haveDeps = isWorkspaceDep(packageJson.dependencies, wss);
+      const haveDeps = isWorkspaceDep(packageJson.dependencies);
 
       for (const dep of haveDeps) {
         const dist = findWorkspaceByName(dep, wss);
-        if (dist !== undefined)
-          tempDeps[dep] = isDev
-            ? dev
-              ? refPackages(found.location, dist.location)
-              : "workspace:^"
-            : dist.packageJson.version || "0.0.0";
+        if (dist) {
+          wsDeps.push(dist);
+          if (dist !== undefined)
+            tempDeps[dep] = isDev
+              ? // ? dev
+                // ? refPackages(found.location, dist.location)
+                "workspace:^"
+              : dist.packageJson.version || "0.0.0";
+        }
       }
       packageJson.dependencies = tempDeps;
     }
@@ -110,8 +117,12 @@ export const buildAProject: BuildAProjectType = async ({
       if (framework === "svelte") {
         tsconfig.extends = "@tsconfig/svelte/tsconfig.json";
       }
-
-      tsconfig.references = calculateReferences(projMan, wss);
+      tsconfig.references = calculateReferences(
+        projMan,
+        wss,
+        packageJson.dependencies
+      );
+      tsconfig.desplay = projMan.packageName;
       tsconfig.exclude = calculateExcludes(projMan);
       tsconfig.include = calculateIncludes(projMan);
 
@@ -128,7 +139,8 @@ export const buildAProject: BuildAProjectType = async ({
               framework === "express"
                 ? true
                 : tsconfig.compilerOptions?.esModuleInterop,
-            emitDeclarationOnly: true,
+            noEmit: workspaceType === "app" ? true : undefined,
+            emitDeclarationOnly: workspaceType === "package" ? true : undefined,
             composite:
               repoType === "monoRepo"
                 ? true
@@ -145,6 +157,14 @@ export const buildAProject: BuildAProjectType = async ({
         },
         path
       );
+
+      if (projMan.workspaceType === "package") {
+        if (!existsSync(join(projMan.fullPath, projMan.declarationDir)))
+          ensureDir(join(projMan.fullPath, projMan.declarationDir));
+        if (!isDev)
+          emptyDirSync(join(projMan.fullPath, projMan.declarationDir));
+        removeSync(join(projMan.fullPath, "tsconfig.tsbuildinfo"));
+      }
     }
   }
 };

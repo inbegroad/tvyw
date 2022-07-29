@@ -15,8 +15,8 @@ const appScripts: ScriptsType = {
   test: "echo test is not implemented",
 };
 const packageScripts: ScriptsEnumType[FrameworksType][WorkspaceType] = {
-  build: 'concurrently "yarn vite build" "yarn tsc"',
-  dev: "vite build --mode development",
+  build: 'concurrently -n bundle,types -s all "vite build" "tsc"',
+  dev: 'concurrently -n bundle,types "vite build --mode development" "tsc -w"',
   lint: "echo lint is not implemented",
   preview: "echo preview is not implemented",
   start: "echo start is not implemented",

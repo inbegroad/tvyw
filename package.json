@@ -10,9 +10,10 @@
     "scripts:build": "yarn scripts run build",
     "scripts:dev": "yarn scripts run dev",
     "tvyw": "yarn scripts:build && yarn workspace tvyw",
+    "create-tvyw": "yarn workspace create-tvyw",
     "build": "yarn tvyw build",
-    "dev": "yarn tvyw",
-    "deploy": "yarn tvyw deploy"
+    "dev": "yarn tvyw dev",
+    "deploy": "yarn tvyw deploy && yarn create-tvyw deploy"
   },
   "dependencies": {
     "turbo": "^1.3.1"

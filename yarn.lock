@@ -1461,7 +1461,7 @@ __metadata:
   dependencies:
     commander: ^9.2.0
     scripts: "workspace:^"
-    tvyw: 0.1.24
+    tvyw: "workspace:^"
   bin:
     create-tvyw: index.js
   languageName: unknown
@@ -4723,7 +4723,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tvyw@0.1.24, tvyw@workspace:packages/tvyw":
+"tvyw@workspace:^, tvyw@workspace:packages/tvyw":
   version: 0.0.0-use.local
   resolution: "tvyw@workspace:packages/tvyw"
   dependencies:
@@ -4751,7 +4751,6 @@ __metadata:
     ndjson-to-json-text: ^1.0.2
     path-browserify: ^1.0.1
     prettier: ^2.7.1
-    rimraf: ^3.0.2
     rollup: ^2.76.0
     rollup-plugin-delete: ^2.0.0
     rollup-plugin-node-builtins: ^2.1.2

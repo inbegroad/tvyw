@@ -18,6 +18,6 @@ export const focus: FocusAction = async (cmd, { focusTo }) => {
     targetPkg = findWorkspaceByName(striPEqualsFromString(focusTo))?.name;
   }
   if (targetPkg !== undefined) {
-    await yarn.execute(`yarn workspace ${targetPkg} run ${cmd}`);
+    await yarn.execute(`yarn workspace ${targetPkg} ${cmd}`);
   }
 };

@@ -27,10 +27,17 @@ export const projectBuild = async (isDev: boolean) => {
       packageJson.name = "root";
       packageJson.private = true;
       // root tsconfig
-      tsconfig.references = calculateReferences(projMan, workspaces);
+      const rootRefs = calculateReferences(
+        projMan,
+        workspaces,
+        packageJson.dependencies
+      );
+      tsconfig.desplay = "root";
+      tsconfig.references = rootRefs;
       tsconfig.files = [];
 
       await writeTsconfig(tsconfig, process.cwd());
+
       await writePackageJson(
         processPackageJson({
           packageJson: packageJson,

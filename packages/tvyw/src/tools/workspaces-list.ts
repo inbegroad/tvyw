@@ -6,15 +6,15 @@ import { PackageJsonType, ProjManType, TsconfigType } from "../types";
 import { readPackageJsonSync, readTsconfigSync } from "./read";
 import { resolveConfig } from "./resolveProjMan";
 
+type CliOut = { name: string; location: string };
 type Raw = {
-  name: string;
-  location: string;
-};
-export type WorkspaceDetailsType = {
   fullPath: string;
   destPath: string;
+  appRootPath: string;
+} & CliOut;
+export type WorkspaceDetailsType = {
   packageJson: PackageJsonType;
-  projMan: ProjManType;
+  projMan: Required<ProjManType>;
   tsconfig?: TsconfigType;
   dirName: string;
   rootDirName: string | null;
@@ -27,55 +27,61 @@ export type WorkspacesListType = {
   root: WorkspaceDetailsType;
   workspaces: WorkspaceDetailsType[];
 };
-const getRaw = () => {
+export const getWorkspacesListRaw = () => {
   const out = execSync("yarn workspaces list --json -R").toString().trim();
 
-  const raw = JSON.parse(ndjsonToJsonText(out)) as Raw[];
-  return raw;
+  const raw = JSON.parse(ndjsonToJsonText(out)) as CliOut[];
+
+  return raw.map(({ location, name }) => {
+    const rootPath = appRootPath.path.replace(/\\/g, "/");
+    const fullPath = path.join(rootPath, location).replace(/\\/g, "/");
+    const destPath = path.relative(process.cwd(), fullPath).replace(/\\/g, "/");
+    return { name, location, fullPath, destPath, appRootPath: rootPath };
+  }) as Raw[];
 };
 
 export const getWorkspacesList = (): WorkspacesListType => {
-  const scriptPath = process.cwd();
-  const raw = getRaw();
-  const rootPath = appRootPath.path.replace(/\\/g, "/");
-  const detailedRaw = raw.map<WorkspaceDetailsType>((r) => {
-    const fullPath = path.join(rootPath, r.location).replace(/\\/g, "/");
-    const destPath = path.relative(scriptPath, fullPath).replace(/\\/g, "/");
-    const projMan = resolveConfig(fullPath);
+  const raw = getWorkspacesListRaw();
+  const detailedRaw = raw.map<WorkspaceDetailsType>(
+    ({ destPath, fullPath, location, name, appRootPath }) => {
+      const projMan = resolveConfig(fullPath);
 
-    let tsconfig: TsconfigType = {};
-    let disableTypescript = false;
-    let isPackage = false;
-    let deploy = false;
-    if (
-      (projMan.repoType === "monoRepo" && !projMan.root) ||
-      projMan.repoType === "single"
-    ) {
-      isPackage = projMan.workspaceType === "package";
-      deploy = projMan.deploy || false;
-      if (!projMan.disableTypescript) {
-        tsconfig = readTsconfigSync(fullPath) || {};
-      } else {
-        disableTypescript = true;
+      let tsconfig: TsconfigType = {};
+      let disableTypescript = false;
+      let isPackage = false;
+      let deploy = false;
+      if (
+        (projMan.repoType === "monoRepo" && !projMan.root) ||
+        projMan.repoType === "single"
+      ) {
+        isPackage = projMan.workspaceType === "package";
+        deploy = projMan.deploy || false;
+        if (!projMan.disableTypescript) {
+          tsconfig = readTsconfigSync(fullPath) || {};
+        } else {
+          disableTypescript = true;
+        }
       }
+      return {
+        name,
+        location,
+        appRootPath,
+        fullPath,
+        destPath,
+        projMan,
+        tsconfig,
+        isPackage,
+        disableTypescript,
+        packageJson: readPackageJsonSync(fullPath),
+        dirName: path.parse(fullPath).name,
+        deploy,
+        rootDirName:
+          location === "."
+            ? null
+            : path.relative(appRootPath, path.join(fullPath, "../")),
+      };
     }
-    return {
-      ...r,
-      fullPath,
-      destPath,
-      projMan,
-      tsconfig,
-      isPackage,
-      disableTypescript,
-      packageJson: readPackageJsonSync(fullPath),
-      dirName: path.parse(fullPath).name,
-      deploy,
-      rootDirName:
-        r.location === "."
-          ? null
-          : path.relative(rootPath, path.join(fullPath, "../")),
-    };
-  });
+  );
   const root = detailedRaw.filter((r) => r.location === ".")[0];
   const workspaces = detailedRaw.filter((r) => r.location !== ".");
 
@@ -105,11 +111,8 @@ export const findWorkspaceLocation = (
   return wss.find((w) => isSameLocation(location, w.location));
 };
 
-export const isWorkspaceDep = (
-  dependencies: Record<string, string> = {},
-  workspaces?: WorkspacesListType
-) => {
-  const { workspaces: wss } = workspaces || getWorkspacesList();
+export const isWorkspaceDep = (dependencies: Record<string, string> = {}) => {
+  const wss = getWorkspacesListRaw();
   let ret: Record<string, boolean> = {};
 
   for (const ws of Object.keys(dependencies)) {
@@ -119,7 +122,16 @@ export const isWorkspaceDep = (
 
   return Object.keys(ret).filter((re) => ret[re] === true);
 };
-export const isAvailableWorkspaceName = (name: string) =>
-  getRaw().find((r) => r.name === name) === undefined;
 
-export const isWorkspace = (name: string) => !isAvailableWorkspaceName(name);
+export const getWorkspaceLocation = (name: string, raw?: Raw[]) =>
+  (raw || getWorkspacesListRaw()).filter((w) => w.name === name)[0].location;
+export const isAvailableWorkspaceName = (name: string, raw?: Raw[]) =>
+  (raw || getWorkspacesListRaw()).find((r) => r.name === name) === undefined;
+export const isAvailableWorkspaceLocation = (location: string, raw?: Raw[]) =>
+  (raw || getWorkspacesListRaw()).find((r) => r.location === location) ===
+  undefined;
+
+export const isWorkspace = (name: string, raw?: Raw[]) =>
+  !isAvailableWorkspaceName(name, raw);
+export const isWorkspaceByLocation = (location: string, raw?: Raw[]) =>
+  !isAvailableWorkspaceLocation(location, raw);

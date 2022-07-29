@@ -2,24 +2,14 @@ import fsExtra from "fs-extra";
 import path from "path";
 import { PackageJsonType, TsconfigType } from "../types";
 
-export const readSync = <T>(filePath: string) => {
-  if (!fsExtra.existsSync(filePath)) {
-    throw new Error(`File ${filePath} does not exist on ${process.cwd()}`);
-  } else
-    return fsExtra.readJSONSync(filePath, {
-      encoding: "utf8",
-    }) as T;
-};
-export const read = async <T>(filePath: string): Promise<T> => {
-  if (!fsExtra.existsSync(filePath))
-    return Promise.reject(
-      `File ${filePath} does not exist on ${process.cwd()}`
-    );
-  else
-    return fsExtra.readJSON(filePath, {
-      encoding: "utf8",
-    });
-};
+export const readSync = <T>(filePath: string) =>
+  fsExtra.readJSONSync(filePath, {
+    encoding: "utf8",
+  }) as T;
+export const read = async <T>(filePath: string): Promise<T> =>
+  fsExtra.readJSON(filePath, {
+    encoding: "utf8",
+  }) as Promise<T>;
 
 //sync
 export const readPackageJsonSync = (src = process.cwd()) =>

@@ -1,11 +1,12 @@
 import { ProjManType, TsconfigType } from "../types";
-import { FrameworksType } from "../types/from-schema";
+import { FrameworksType, PackageJsonType } from "../types/from-schema";
 import { refPackages } from "./relative-packages";
 import { findWorkspaceByName, WorkspacesListType } from "./workspaces-list";
 
 export type CalculateRefrencesType = (
   projMan: ProjManType,
-  workspaces: WorkspacesListType
+  workspaces: WorkspacesListType,
+  dependencies: PackageJsonType["dependencies"]
 ) => TsconfigType["references"];
 
 type Extras = Record<FrameworksType, TsconfigType["references"]>;
@@ -29,30 +30,32 @@ const getExtras = (fw: FrameworksType, ext: TsconfigType["references"]) => {
 };
 export const calculateReferences: CalculateRefrencesType = (
   projMan,
-  workspaces
+  workspaces,
+  dependencies = {}
 ) => {
   if (projMan.repoType === "monoRepo" && projMan.root) {
     return workspaces?.workspaces
       .filter((w) => !w.disableTypescript)
-      .map(({ location: lk }) => ({
-        path: lk,
+      .map(({ destPath: path }) => ({
+        path,
       }));
   } else if (projMan.repoType === "monoRepo" && !projMan.root) {
     const refs = getExtras(projMan.framework, projMan.extraReferences) || [];
     const wsf = workspaces.workspaces
       .filter((ws) => ws.name !== projMan.packageName)
       .filter(({ isPackage }) => isPackage)
+      .filter((w) => dependencies[w.name] !== undefined)
       .filter((w) => !w.disableTypescript);
     const curr = findWorkspaceByName(projMan.packageName, workspaces);
-    if (curr !== undefined)
-      return refs.concat(
-        wsf.map((w) => ({
-          path:
-            projMan.workspaceType === "package"
-              ? `../${w.dirName}`
-              : refPackages(curr.location, w.location),
-          circular: projMan.workspaceType === "package" ? true : undefined,
-        }))
-      );
-  }
+    if (curr !== undefined) {
+      const refss = wsf.map((w) => ({
+        path:
+          projMan.workspaceType === "package"
+            ? `../${w.dirName}`
+            : refPackages(curr.location, w.location),
+      }));
+      return refs.concat(refss);
+    }
+  } else return;
+  getExtras(projMan.framework, projMan.extraReferences) || [];
 };
