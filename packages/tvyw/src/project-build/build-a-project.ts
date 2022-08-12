@@ -89,7 +89,6 @@ export const buildAProject: BuildAProjectType = async ({
       types: packageJson.types,
     });
     packageJson.name = packageName;
-
     const newPackageJson = processPackageJson({
       packageJson: {
         ...packageJson,

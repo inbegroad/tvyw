@@ -66,7 +66,15 @@ export const vitePluginTvyw = (
             workspaceType === "app"
               ? resolveFromDirName(entriesDir)
               : undefined,
-          plugins: [...plugins, ...(config.plugins || [])],
+          plugins: [...new Set([...plugins, ...(config.plugins || [])])],
+          resolve: {
+            dedupe: [
+              ...new Set([
+                ...(config.resolve?.dedupe || []),
+                ...(externals.external || []),
+              ]),
+            ],
+          },
           esbuild: {
             ...config.esbuild,
             logOverride: {
@@ -76,7 +84,7 @@ export const vitePluginTvyw = (
           },
           optimizeDeps: {
             ...config.optimizeDeps,
-            exclude: config.optimizeDeps?.exclude?.concat(exclude || []),
+            include: config.optimizeDeps?.exclude?.concat(exclude || []),
           },
 
           build: {
