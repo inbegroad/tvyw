@@ -9,17 +9,17 @@ const appScripts: ScriptsType = {
   dev: "vite",
   build: "vite build",
   preview: "vite preview",
-  lint: "echo lint is not implemented",
-  start: "echo start is not implemented",
+  // lint: "echo lint is not implemented",
+  // start: "echo start is not implemented",
   scaf: "echo scaf is not implemented",
   test: "echo test is not implemented",
 };
 const packageScripts: ScriptsEnumType[FrameworksType][WorkspaceType] = {
   build: 'concurrently -n bundle,types -s all "vite build" "tsc"',
   dev: 'concurrently -n bundle,types "vite build --mode development" "tsc -w"',
-  lint: "echo lint is not implemented",
+  // lint: "echo lint is not implemented",
   preview: "echo preview is not implemented",
-  start: "echo start is not implemented",
+  // start: "echo start is not implemented",
   scaf: "echo scaf is not implemented",
   test: "echo test is not implemented",
 };
@@ -29,8 +29,8 @@ export const scriptsEnum: ScriptsEnumType = {
     app: {
       build: "echo build is not implemented",
       dev: "echo dev is not implemented",
-      start: "echo start is not implemented",
-      lint: "echo lint is not implemented",
+      // start: "echo start is not implemented",
+      // lint: "echo lint is not implemented",
       preview: "echo preview is not implemented",
       scaf: "echo scaf is not implemented",
       test: "echo test is not implemented",
@@ -38,17 +38,17 @@ export const scriptsEnum: ScriptsEnumType = {
     package: {
       build: "echo build is not implemented",
       dev: "echo dev is not implemented",
-      lint: "echo lint is not implemented",
+      // lint: "echo lint is not implemented",
       preview: "echo preview is not implemented",
-      start: "echo start is not implemented",
+      // start: "echo start is not implemented",
       scaf: "echo scaf is not implemented",
       test: "echo test is not implemented",
     },
   },
-  express: {
-    app: appScripts,
-    package: packageScripts,
-  },
+  // express: {
+  //   app: appScripts,
+  //   package: packageScripts,
+  // },
   preact: {
     app: appScripts,
     package: packageScripts,

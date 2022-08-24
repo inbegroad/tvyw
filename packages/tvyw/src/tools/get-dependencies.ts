@@ -32,44 +32,44 @@ export const getDependencies = ({
   | "bundledDependencies"
 > => {
   const { name, version: orVersion, dev, source } = getVersionConfig();
-  const newVersion = dev ? `${source}${name}/packages/${name}` : orVersion;
+  const newVersion = dev ? `link:${source}${name}/packages/${name}` : orVersion;
   // const names =
   const version = dev
     ? isMono
-      ? `../../../${name}/packages/${name}`
+      ? `link:../../../${name}/packages/${name}`
       : newVersion
     : orVersion;
   const forMonoRoot = { [name]: newVersion };
-  const forFws = { [name]: version, concurrently: versions["concurrently"] };
+  const forFws = { [name]: version };
   switch (framework) {
-    case "express":
-      return {
-        ...props,
-        dependencies: {
-          ...props.dependencies,
-          express: versions["express"],
-        },
-        devDependencies: {
-          ...props.devDependencies,
-          ...forFws,
-          "@swc/core": versions["@swc/core"],
-          "@types/express": versions["@types/express"],
-          "@types/node": versions["@types/node"],
-          tslib: versions["tslib"],
-          "ts-node": versions["ts-node"],
-          "@typescript-eslint/eslint-plugin":
-            versions["@typescript-eslint/eslint-plugin"],
-          "@typescript-eslint/parser": versions["@typescript-eslint/parser"],
-          eslint: versions["eslint"],
-          "eslint-config-prettier": versions["eslint-config-prettier"],
-          prettier: versions["prettier"],
-          "ts-node-dev": versions["ts-node-dev"],
-          typescript: versions["typescript"],
-          vite: versions["vite"],
+    // case "express":
+    //   return {
+    //     ...props,
+    //     dependencies: {
+    //       ...props.dependencies,
+    //       express: versions["express"],
+    //     },
+    //     devDependencies: {
+    //       ...props.devDependencies,
+    //       ...forFws,
+    //       "@swc/core": versions["@swc/core"],
+    //       "@types/express": versions["@types/express"],
+    //       "@types/node": versions["@types/node"],
+    //       tslib: versions["tslib"],
+    //       "ts-node": versions["ts-node"],
+    //       "@typescript-eslint/eslint-plugin":
+    //         versions["@typescript-eslint/eslint-plugin"],
+    //       "@typescript-eslint/parser": versions["@typescript-eslint/parser"],
+    //       eslint: versions["eslint"],
+    //       "eslint-config-prettier": versions["eslint-config-prettier"],
+    //       prettier: versions["prettier"],
+    //       "ts-node-dev": versions["ts-node-dev"],
+    //       typescript: versions["typescript"],
+    //       vite: versions["vite"],
 
-          rimraf: versions["rimraf"],
-        },
-      };
+    //       rimraf: versions["rimraf"],
+    //     },
+    //   };
     case "preact":
       return {
         ...props,

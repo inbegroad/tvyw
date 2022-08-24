@@ -1,19 +1,14 @@
-import { emptyDirSync, ensureDir, existsSync, removeSync } from "fs-extra";
+import { removeSync } from "fs-extra";
 import { join } from "path";
+import { projManCmdEnum } from "../schemas";
 import { calculateExcludes } from "../tools/calculate-excludes";
 import { calculateIncludes } from "../tools/calculate-includes";
 import { calculateReferences } from "../tools/calculate-references";
+import { configDefaults } from "../tools/defaults";
 import { getPackageJsonFiles } from "../tools/ge-pkgjson-files";
 import { processPackageJson } from "../tools/process-package-json";
-// import { refPackages } from "../tools/relative-packages";
-// import { getVersionConfig } from "../tools/version-config";
-import {
-  findWorkspaceByName,
-  getWorkspacesList,
-  isWorkspaceDep,
-  WorkspaceDetailsType,
-  WorkspacesListType,
-} from "../tools/workspaces-list";
+import { getVersionConfig } from "../tools/version-config";
+import { WorkspacesMap } from "../tools/workspaces/workspaces-map";
 import { writePackageJson, writeTsconfig } from "../tools/write";
 import { ProjManType } from "../types";
 import { WorkspaceType, RepoType, FrameworksType } from "../types/from-schema";
@@ -32,7 +27,7 @@ export type BuildAProjectType = CallBack<
     repoType: RepoType;
     framework: FrameworksType;
     path?: string;
-    workspaces?: WorkspacesListType;
+    workspaces: WorkspacesMap;
     isDev: boolean;
   },
   Promise<void>
@@ -53,30 +48,15 @@ export const buildAProject: BuildAProjectType = async ({
   isDev,
 }) => {
   // packageJson
-  const wss = workspaces || getWorkspacesList();
-  const found = findWorkspaceByName(packageName, wss);
-  const wsDeps: WorkspaceDetailsType[] = [];
-  // const { dev } = getVersionConfig();
-  if (found !== undefined) {
-    const { packageJson, tsconfig = {} } = found;
-    if (projMan.repoType === "monoRepo" && !projMan.root) {
-      const tempDeps = packageJson.dependencies || {};
-      const haveDeps = isWorkspaceDep(packageJson.dependencies);
+  const { dev, name: coreName } = getVersionConfig();
+  const workspace =
+    repoType === "monoRepo"
+      ? workspaces.findByName(packageName)
+      : workspaces.getRoot();
 
-      for (const dep of haveDeps) {
-        const dist = findWorkspaceByName(dep, wss);
-        if (dist) {
-          wsDeps.push(dist);
-          if (dist !== undefined)
-            tempDeps[dep] = isDev
-              ? // ? dev
-                // ? refPackages(found.location, dist.location)
-                "workspace:^"
-              : dist.packageJson.version || "0.0.0";
-        }
-      }
-      packageJson.dependencies = tempDeps;
-    }
+  if (workspace !== undefined) {
+    const { packageJson, tsconfig = {}, name } = workspace;
+
     const { exports, main, module, types } = getPackageJsonFiles({
       buildDir: buildDir || "build",
       declarationDir: declarationDir || "types",
@@ -89,6 +69,13 @@ export const buildAProject: BuildAProjectType = async ({
       types: packageJson.types,
     });
     packageJson.name = packageName;
+    if (dev) {
+      delete packageJson.scripts?.[coreName];
+      for (const scr of projManCmdEnum) {
+        delete packageJson.scripts?.[scr];
+      }
+    }
+
     const newPackageJson = processPackageJson({
       packageJson: {
         ...packageJson,
@@ -116,11 +103,7 @@ export const buildAProject: BuildAProjectType = async ({
       if (framework === "svelte") {
         tsconfig.extends = "@tsconfig/svelte/tsconfig.json";
       }
-      tsconfig.references = calculateReferences(
-        projMan,
-        wss,
-        packageJson.dependencies
-      );
+      tsconfig.references = calculateReferences(name, workspaces);
       tsconfig.desplay = projMan.packageName;
       tsconfig.exclude = calculateExcludes(projMan);
       tsconfig.include = calculateIncludes(projMan);
@@ -128,16 +111,22 @@ export const buildAProject: BuildAProjectType = async ({
       await writeTsconfig(
         {
           ...tsconfig,
+          include: [
+            ...(tsconfig.include || []),
+            entriesDir || configDefaults.entriesDir,
+          ],
           compilerOptions: {
             ...tsconfig.compilerOptions,
-            module:
-              framework === "express"
-                ? "CommonJS"
-                : tsconfig.compilerOptions?.module,
-            esModuleInterop:
-              framework === "express"
-                ? true
-                : tsconfig.compilerOptions?.esModuleInterop,
+            resolveJsonModule: true,
+            // moduleResolution: "Node",
+            // module:
+            //   framework === "express"
+            //     ? "CommonJS"
+            //     : tsconfig.compilerOptions?.module,
+            // esModuleInterop:
+            //   framework === "express"
+            //     ? true
+            //     : tsconfig.compilerOptions?.esModuleInterop,
             noEmit: workspaceType === "app" ? true : undefined,
             emitDeclarationOnly: workspaceType === "package" ? true : undefined,
             composite:
@@ -158,11 +147,8 @@ export const buildAProject: BuildAProjectType = async ({
       );
 
       if (projMan.workspaceType === "package") {
-        if (!existsSync(join(projMan.fullPath, projMan.declarationDir)))
-          ensureDir(join(projMan.fullPath, projMan.declarationDir));
         if (!isDev)
-          emptyDirSync(join(projMan.fullPath, projMan.declarationDir));
-        removeSync(join(projMan.fullPath, "tsconfig.tsbuildinfo"));
+          removeSync(join(workspace.location, "tsconfig.tsbuildinfo"));
       }
     }
   }

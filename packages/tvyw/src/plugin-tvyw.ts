@@ -1,13 +1,14 @@
 import legacy from "@vitejs/plugin-legacy";
+import esLint from "vite-plugin-eslint";
 import { ConfigEnv, LibraryFormats, PluginOption, UserConfig } from "vite";
 import { readPackageJsonSync } from "./tools/read";
-import { isWorkspace } from "./tools/workspaces-list";
 import { dedupArray } from "./tools/set-to-array";
 import { externalsTool } from "./tools/externals-tool";
 import { getEntryExtentionFromFramework } from "./tools/extention-from-framework";
 import { getExtFromBuildFile } from "./tools/get-ext-from-build-file";
 import { resolveConfig } from "./tools/resolveProjMan";
 import { resolve } from "path";
+import { isNodeModule } from "./tools/is-module";
 
 export type TvywPluginPropsType = {
   disableExternal?: boolean;
@@ -22,10 +23,11 @@ export const vitePluginTvyw = (
 
     config: (config: UserConfig, { mode }: ConfigEnv): UserConfig => {
       {
+        const dev = mode === "development";
         let dependencies: string[] | undefined;
         if (packageJson.dependencies) {
           dependencies = Object.keys(packageJson.dependencies).filter((dep) =>
-            isWorkspace(dep)
+            isNodeModule(dep)
           );
         }
         const exclude = dedupArray(
@@ -36,11 +38,10 @@ export const vitePluginTvyw = (
           throw new Error(
             "Project build was called from root level, please check your configuration"
           );
-        const dev = mode === "development";
         const { buildDir, entries, entriesDir, framework, workspaceType } =
           projMan;
 
-        const plugins: PluginOption[] =
+        const plugins: PluginOption[] = [esLint()].concat(
           workspaceType === "app"
             ? [
                 legacy({
@@ -52,12 +53,17 @@ export const vitePluginTvyw = (
                   targets: ["defaults", "not IE 11"],
                 }),
               ]
-            : [];
+            : []
+        );
         const formats: LibraryFormats[] = ["umd", "cjs", "es"];
         const externals = externalsTool({
           packageJson: readPackageJsonSync(),
           isPackage: workspaceType === "package",
         });
+        const optimizeDeps = {
+          ...config.optimizeDeps,
+          include: config.optimizeDeps?.exclude?.concat(exclude || []),
+        };
 
         return {
           clearScreen: false,
@@ -82,10 +88,7 @@ export const vitePluginTvyw = (
               "this-is-undefined-in-esm": "silent",
             },
           },
-          optimizeDeps: {
-            ...config.optimizeDeps,
-            include: config.optimizeDeps?.exclude?.concat(exclude || []),
-          },
+          optimizeDeps,
 
           build: {
             emptyOutDir: !dev,
@@ -118,18 +121,22 @@ export const vitePluginTvyw = (
               },
             },
             outDir: resolveFromDirName(buildDir),
-            lib: workspaceType === "package" && {
-              name: entries,
-              entry: resolveFromDirName(
-                `${entriesDir}/${entries}.${getEntryExtentionFromFramework(
-                  framework,
-                  workspaceType
-                )}`
-              ),
-              formats,
-              fileName: (format) => `[name]${getExtFromBuildFile(format)}`,
-              ...config.build?.lib,
-            },
+            lib:
+              workspaceType === "package"
+                ? {
+                    name: entries,
+                    entry: resolveFromDirName(
+                      `${entriesDir}/${entries}.${getEntryExtentionFromFramework(
+                        framework,
+                        workspaceType
+                      )}`
+                    ),
+                    formats,
+                    fileName: (format) =>
+                      `[name]${getExtFromBuildFile(format)}`,
+                    ...config.build?.lib,
+                  }
+                : false,
             ...config.build,
           },
         };

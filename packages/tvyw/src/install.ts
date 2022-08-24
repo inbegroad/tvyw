@@ -2,7 +2,7 @@ import yarn from "@yarnpkg/shell";
 import { commaSeparatedList } from "./tools/comma-list";
 import { questionsMonoList } from "./tools/questions";
 import { striPEqualsFromString } from "./tools/strip-eq-from-string";
-import { findWorkspaceByName } from "./tools/workspaces-list";
+import { WorkspacesMap } from "./tools/workspaces/workspaces-map";
 import { CallBack } from "./types/generics";
 
 export type InstallAction = CallBack<
@@ -14,12 +14,13 @@ export const install: InstallAction = async (
   packageToInstall,
   { installTo, args }
 ) => {
+  const workspaces = new WorkspacesMap();
   let targetPkg: string | undefined;
   if (installTo === undefined) {
-    const name = await questionsMonoList.selectAWorkspace();
+    const name = await questionsMonoList.selectAWorkspace(workspaces);
     targetPkg = name?.name;
   } else {
-    targetPkg = findWorkspaceByName(striPEqualsFromString(installTo))?.name;
+    targetPkg = workspaces.findByName(striPEqualsFromString(installTo))?.name;
   }
   const argum = args
     ? commaSeparatedList(striPEqualsFromString(args)).join(" ")

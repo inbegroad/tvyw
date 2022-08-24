@@ -1,12 +1,10 @@
-import { ProjManType, TsconfigType } from "../types";
-import { FrameworksType, PackageJsonType } from "../types/from-schema";
-import { refPackages } from "./relative-packages";
-import { findWorkspaceByName, WorkspacesListType } from "./workspaces-list";
+import { FrameworksType, TsconfigType } from "../types/from-schema";
+import { relativePackages } from "./relative";
+import { WorkspacesMap } from "./workspaces/workspaces-map";
 
 export type CalculateRefrencesType = (
-  projMan: ProjManType,
-  workspaces: WorkspacesListType,
-  dependencies: PackageJsonType["dependencies"]
+  name: string,
+  workspaces: WorkspacesMap
 ) => TsconfigType["references"];
 
 type Extras = Record<FrameworksType, TsconfigType["references"]>;
@@ -14,7 +12,7 @@ type Extras = Record<FrameworksType, TsconfigType["references"]>;
 const getExtras = (fw: FrameworksType, ext: TsconfigType["references"]) => {
   const ex: Extras = {
     custom: undefined,
-    express: undefined,
+    // express: undefined,
     preact: [{ path: "./tsconfig.node.json" }],
     react: undefined,
     svelte: [{ path: "./tsconfig.node.json" }],
@@ -29,33 +27,50 @@ const getExtras = (fw: FrameworksType, ext: TsconfigType["references"]) => {
   }
 };
 export const calculateReferences: CalculateRefrencesType = (
-  projMan,
-  workspaces,
-  dependencies = {}
+  name,
+  workspaces
 ) => {
-  if (projMan.repoType === "monoRepo" && projMan.root) {
-    return workspaces?.workspaces
-      .filter((w) => !w.disableTypescript)
-      .map(({ destPath: path }) => ({
-        path,
-      }));
-  } else if (projMan.repoType === "monoRepo" && !projMan.root) {
-    const refs = getExtras(projMan.framework, projMan.extraReferences) || [];
-    const wsf = workspaces.workspaces
-      .filter((ws) => ws.name !== projMan.packageName)
-      .filter(({ isPackage }) => isPackage)
-      .filter((w) => dependencies[w.name] !== undefined)
-      .filter((w) => !w.disableTypescript);
-    const curr = findWorkspaceByName(projMan.packageName, workspaces);
-    if (curr !== undefined) {
-      const refss = wsf.map((w) => ({
-        path:
-          projMan.workspaceType === "package"
-            ? `../${w.dirName}`
-            : refPackages(curr.location, w.location),
-      }));
-      return refs.concat(refss);
+  let ret: TsconfigType["references"];
+  const workspace = workspaces.findByName(name);
+
+  if (workspace && !workspace.disableTypescript) {
+    if (workspace.projMan.repoType === "monoRepo") {
+      if (workspace.projMan.root) {
+        const refs = workspaces.workspacesList
+          .filter((w) => !w.disableTypescript)
+          .map((w) => ({
+            path: relativePackages(workspace.location, w.location),
+          }));
+
+        ret = refs;
+      } else {
+        const refs = workspaces.workspacesList
+          .filter(
+            (w) =>
+              !w.disableTypescript &&
+              w.name !== workspace.name &&
+              w.isPackage &&
+              workspaces.isDependencyOf(w.name, workspace.name)
+          )
+          .map((w) => ({
+            path: relativePackages(workspace.location, w.location),
+          }))
+          .concat(
+            getExtras(
+              workspace.projMan.framework,
+              workspace.projMan.extraReferences
+            ) || []
+          );
+
+        ret = refs;
+      }
+    } else {
+      ret = getExtras(
+        workspace.projMan.framework,
+        workspace.projMan.extraReferences
+      );
     }
-  } else return;
-  getExtras(projMan.framework, projMan.extraReferences) || [];
+  }
+
+  return ret?.length === 0 ? undefined : ret;
 };

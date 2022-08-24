@@ -15,38 +15,31 @@ import {
 } from "./config-prop-from-string";
 import { haveDependency } from "./have-dependency";
 import { getValidName } from "./pkg-name";
-import {
-  WorkspaceDetailsType,
-  getWorkspacesList,
-  findWorkspaceByName,
-  isWorkspace,
-  WorkspacesListType,
-} from "./workspaces-list";
+import { WorkspaceDetailsType } from "./workspaces/types";
+import { WorkspacesMap } from "./workspaces/workspaces-map";
 type QuestionType<T, R> = CallBack<T, Promise<R>>;
-// type QuestionType<T, R = T> = (args?: T) => Promise<R>;
 
 const linkWorkspaces = async (
   packageName: string,
-  workspaces?: WorkspacesListType
+  workspaces: WorkspacesMap
 ) => {
   let selectedWorkspaces: string[] = [];
-  const wsl = workspaces || getWorkspacesList();
-  const { workspaces: wss } = wsl;
+  const choices = workspaces.workspacesList
+    .filter((w) => w.isPackage && w.name !== packageName)
+    .map((ws) => {
+      return {
+        name: ws.name,
+        value: ws.name,
+        key: ws.location,
+      };
+    });
 
-  if (wss && wss.length > 0) {
+  if (choices.length > 0) {
     const question: QuestionCollection<{ selectedFramework: string[] }> = {
       type: "checkbox",
       name: "selectedFramework",
       message: "Select workspaces to link",
-      choices: wss
-        .filter((w) => w.isPackage && w.name !== packageName)
-        .map((ws) => {
-          return {
-            name: ws.name,
-            value: ws.name,
-            key: ws.location,
-          };
-        }),
+      choices,
     };
     const { selectedFramework: sfws } = await inquirer.prompt(question);
     selectedWorkspaces = sfws;
@@ -54,61 +47,57 @@ const linkWorkspaces = async (
   return selectedWorkspaces;
 };
 const selectAWorkspace = async (
-  filter?: (workspace: WorkspaceDetailsType) => boolean,
-  workspaces?: WorkspacesListType
+  workspaces: WorkspacesMap,
+  filter?: (workspace: WorkspaceDetailsType) => boolean
 ) => {
-  const wsl = workspaces || getWorkspacesList();
-  const { workspaces: wss } = wsl;
-  if (wss && wss.length > 0) {
-    let cho = wss;
-    if (filter !== undefined) {
-      cho = cho.filter((w) => filter(w));
-    }
+  if (workspaces.repoType === "monoRepo" && workspaces.size > 0) {
+    const filtered = filter
+      ? workspaces.workspacesList.filter((w) => filter(w))
+      : workspaces.workspacesList;
     const question: QuestionCollection<{ selectedWorkspace: string }> = {
       type: "list",
       name: "selectedWorkspace",
       message: "Select a workspace",
-      choices: cho.map((ws) => ws.name),
+      choices: filtered.map((ws) => ({
+        name: ws.name,
+        value: ws.name,
+        key: ws.location,
+      })),
     };
-    const { selectedWorkspace: sfws } = await inquirer.prompt(question);
-    return findWorkspaceByName(sfws, { ...wsl, workspaces: wss });
+    const { selectedWorkspace } = await inquirer.prompt(question);
+    return workspaces.findByName(selectedWorkspace);
   }
   throw new Error("You have no workspaces to preform an actionn for");
 };
 const removeWorkspace = async (
-  packageName?: string,
-  workspaces?: WorkspacesListType
+  workspaces: WorkspacesMap,
+  packageName?: string
 ) => {
   let removed: WorkspaceDetailsType | undefined;
-  const wsl = workspaces || getWorkspacesList();
-  const { workspaces: wss } = wsl;
-  if (wss && wss.length > 0) {
-    if (packageName) {
-      removed = wss.filter((w) => w.name === packageName)[0];
+  if (workspaces.size > 0) {
+    if (packageName === undefined) {
+      removed = await selectAWorkspace(workspaces);
     } else {
-      removed = await selectAWorkspace();
+      removed = workspaces.findByName(packageName);
     }
   }
 
   return removed;
 };
 const addkWorkspaceDeps = async (
-  packageName?: string,
-  workspaces?: WorkspacesListType
+  workspaces: WorkspacesMap,
+  packageName?: string
 ) => {
-  const wsl = workspaces || getWorkspacesList();
-
-  const { workspaces: wss } = wsl;
   let toAdd: WorkspaceDetailsType | undefined;
   if (packageName === undefined) {
-    toAdd = await selectAWorkspace();
+    toAdd = await selectAWorkspace(workspaces);
   } else {
-    toAdd = findWorkspaceByName(packageName, { ...wsl, workspaces: wss });
+    toAdd = workspaces.findByName(packageName);
   }
 
   let added: string[] = [];
 
-  const withDeps = wss.filter(
+  const withDeps = workspaces.workspacesList.filter(
     (w) =>
       w.isPackage &&
       !haveDependency(w.name, toAdd?.packageJson.dependencies || {})
@@ -234,21 +223,25 @@ const workspaceType: QuestionType<[string | undefined], WorkspaceType> = async (
 };
 
 const workspaceName: QuestionType<
-  [string | undefined, ((filter: WorkspaceDetailsType) => boolean) | undefined],
+  [
+    WorkspacesMap,
+    string | undefined,
+    ((filter: WorkspaceDetailsType) => boolean) | undefined
+  ],
   string
-> = async (namArg, filter) => {
+> = async (workspaces, namArg, filter) => {
   const question: QuestionCollection<{
     name: string;
   }> = {
     name: "name",
     type: "list",
     message: "Select a workspace?",
-    choices: getWorkspacesList().workspaces.filter((ws) =>
+    choices: workspaces.workspacesList.filter((ws) =>
       filter ? filter(ws) : ws
     ),
   };
   if (namArg !== undefined) {
-    if (isWorkspace(namArg)) return namArg;
+    if (workspaces.isWorkspace(namArg)) return namArg;
     const { name } = await inquirer.prompt(question);
     return name;
   } else {

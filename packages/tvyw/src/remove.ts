@@ -2,24 +2,22 @@ import yarn from "@yarnpkg/shell";
 import { haveDependency } from "./tools/have-dependency";
 import { questionsMonoList } from "./tools/questions";
 import fsExtra from "fs-extra";
-import { getWorkspacesList } from "./tools/workspaces-list";
 import { CallBack } from "./types/generics";
+import { WorkspacesMap } from "./tools/workspaces/workspaces-map";
 
 type RemoveCmdType = CallBack<[string | undefined], Promise<void>>;
 
 export const remove: RemoveCmdType = async (target) => {
-  const workspaces = getWorkspacesList();
-  const wsAnswer = await questionsMonoList.removeWorkspace(target, workspaces);
+  const workspaces = new WorkspacesMap();
+  const wsAnswer = await questionsMonoList.removeWorkspace(workspaces, target);
+  const newWorkspaces = workspaces.findByName(wsAnswer?.name);
   if (wsAnswer) {
-    const newWorkspaces = workspaces.workspaces.filter(
-      (w) => w.name !== wsAnswer.name
-    );
-    for (const workspace of newWorkspaces) {
-      if (haveDependency(wsAnswer.name, workspace.packageJson.dependencies)) {
-        await yarn.execute(
-          `yarn workspace ${workspace.name} remove ${wsAnswer.name}`
-        );
-      }
+    if (
+      haveDependency(wsAnswer.name, newWorkspaces?.packageJson.dependencies)
+    ) {
+      await yarn.execute(
+        `yarn workspace ${newWorkspaces?.name} remove ${wsAnswer.name}`
+      );
     }
     fsExtra.remove(wsAnswer.location);
   }

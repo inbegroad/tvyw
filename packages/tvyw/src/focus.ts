@@ -1,7 +1,7 @@
 import yarn from "@yarnpkg/shell";
 import { questionsMonoList } from "./tools/questions";
 import { striPEqualsFromString } from "./tools/strip-eq-from-string";
-import { findWorkspaceByName } from "./tools/workspaces-list";
+import { WorkspacesMap } from "./tools/workspaces/workspaces-map";
 import { CallBack } from "./types/generics";
 
 export type FocusAction = CallBack<
@@ -10,12 +10,13 @@ export type FocusAction = CallBack<
 >;
 
 export const focus: FocusAction = async (cmd, { focusTo }) => {
+  const workspaces = new WorkspacesMap();
   let targetPkg: string | undefined;
   if (focusTo === undefined) {
-    const name = await questionsMonoList.selectAWorkspace();
+    const name = await questionsMonoList.selectAWorkspace(workspaces);
     targetPkg = name?.name;
   } else {
-    targetPkg = findWorkspaceByName(striPEqualsFromString(focusTo))?.name;
+    targetPkg = workspaces.findByName(striPEqualsFromString(focusTo))?.name;
   }
   if (targetPkg !== undefined) {
     await yarn.execute(`yarn workspace ${targetPkg} ${cmd}`);

@@ -15,8 +15,8 @@ export const getEntryExtentionFromFramework = (
       return "ts";
     case "vue":
       return "ts";
-    case "express":
-      return "ts";
+    // case "express":
+    //   return "ts";
     default:
       return workspaceType === "app" ? "ts" : "ts";
   }

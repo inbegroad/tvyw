@@ -1,7 +1,7 @@
 import { FrameworksType, TsconfigType, WorkspaceType } from "./from-schema";
 
 export type { PackageJsonType, TsconfigType } from "./from-schema";
-type ProjManVal = {
+export type ProjManSingleEntrey = {
   packageName: string;
   buildDir?: string;
   declarationDir?: string;
@@ -18,17 +18,26 @@ type ProjManVal = {
   typeSource?: string;
   gitIgnore?: string;
   npmIgnore?: string;
-  fullPath?: string;
-  location?: string;
 };
 
+export type MonoRepoRootProjMan = {
+  repoType: "monoRepo";
+  root: true;
+  packagesRootDir?: string;
+  appsRootDir?: string;
+  extraWorkspaces?: string[];
+};
+
+export type MonoRepoWorkspaceProjMan = {
+  repoType: "monoRepo";
+  root: false;
+} & ProjManSingleEntrey;
+export type SingleRepoProjMan = {
+  repoType: "single";
+  root: true;
+} & ProjManSingleEntrey;
+
 export type ProjManType =
-  | {
-      repoType: "monoRepo";
-      root: true;
-      packagesRootDir?: string;
-      appsRootDir?: string;
-      extraWorkspaces?: string[];
-    }
-  | ({ repoType: "monoRepo"; root: false } & ProjManVal)
-  | ({ repoType: "single"; root: true } & ProjManVal);
+  | MonoRepoRootProjMan
+  | MonoRepoWorkspaceProjMan
+  | SingleRepoProjMan;

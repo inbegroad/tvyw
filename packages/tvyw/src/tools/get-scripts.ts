@@ -7,21 +7,25 @@ export const getScripts = (
   isPackage = false,
   isDeploy = false
 ): PackageJsonType["scripts"] => {
-  const { name } = getVersionConfig();
+  const { name, dev } = getVersionConfig();
+  const devScript = dev ? "yarn " : "";
   const defaultScripts: {
     build: string;
     dev: string;
     preview?: string;
     deploy?: string;
-  } = {
-    build: `${name} build`,
-    dev: `${name}`,
+  } & Record<string, string> = {
+    build: `${devScript}${name} build`,
+    dev: `${devScript}${name}`,
   };
-  if (isPackage) {
-    defaultScripts["preview"] = `${name} preview`;
-    if (isDeploy) {
-      defaultScripts.deploy = `${name} deploy`;
-    }
+  if (dev) {
+    defaultScripts[name] = "node node_modules/tvyw/bin/index.js";
+  }
+  if (isDeploy) {
+    defaultScripts.deploy = `${devScript}${name} deploy`;
+  }
+  if (!isPackage) {
+    defaultScripts["preview"] = `${devScript}${name} preview`;
   }
   switch (framework) {
     case "react":
@@ -29,11 +33,11 @@ export const getScripts = (
     case "vanilla":
     case "vue":
       return defaultScripts;
-    case "express":
-      return {
-        ...defaultScripts,
-        start: `${name} start`,
-      };
+    // case "express":
+    //   return {
+    //     ...defaultScripts,
+    //     start: `${name} start`,
+    //   };
     case "svelte":
       return {
         ...defaultScripts,

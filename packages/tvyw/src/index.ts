@@ -5,8 +5,6 @@ export {
   repoTypeEnum,
 } from "./schemas/enums";
 
-export * from "./tools/workspaces-list";
-
 export * from "./tools/write";
 export * from "./tools/read";
 
@@ -17,7 +15,7 @@ export { deploy } from "./deploy";
 export { focus } from "./focus";
 export { install } from "./install";
 export { remove } from "./remove";
-export { run } from "./run";
+export { run } from "./scripts/run";
 
 export { vitePluginTvyw } from "./plugin-tvyw";
 export { defineConfig } from "./tools/define-config";

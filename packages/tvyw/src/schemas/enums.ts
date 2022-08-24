@@ -8,7 +8,7 @@ export const packageJsonPublishConfigAccessEnum = [
 export const packageJsonTypeFiledEnum = ["commonjs", "module"] as const;
 export const frameworksEnum = [
   "custom",
-  "express",
+  // "express",
   "preact",
   "react",
   "svelte",
@@ -19,7 +19,7 @@ export const isPackagableEnum = [
   "custom",
   "react",
   "vanilla",
-  "express",
+  // "express",
 ] as const;
 export const canWebAppEnum = [
   "custom",
@@ -36,11 +36,9 @@ export const workspaceTypeEnum = ["app", "package"] as const;
 export const projManCmdEnum = [
   "build",
   "dev",
-  "lint",
   "test",
   "scaf",
   "preview",
-  "start",
 ] as const;
 
 export const nodeModulesEnum = [

@@ -25,8 +25,8 @@ export const getPackageJosnType = (
   framework?: FrameworksType
 ): PackageJsonType["type"] => {
   switch (framework) {
-    case "express":
-      return "commonjs";
+    // case "express":
+    //   return "commonjs";
     case "svelte":
       return "module";
     default:

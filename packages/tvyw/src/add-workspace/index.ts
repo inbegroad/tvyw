@@ -3,10 +3,6 @@ import fsExtra from "fs-extra";
 import yarn from "@yarnpkg/shell";
 import { copyProject } from "../tools/copy-project";
 import { createProjMan } from "../tools/create-proj-man";
-import {
-  getWorkspacesList,
-  isAvailableWorkspaceName,
-} from "../tools/workspaces-list";
 import { writePackageJson } from "../tools/write";
 import { askAddWorkspaceQuestions } from "./askQuestions";
 import { configDefaults } from "../tools/defaults";
@@ -14,6 +10,7 @@ import { processPackageJson } from "../tools/process-package-json";
 import { getPackageManagerVersion } from "../tools/package-manager-version";
 import { AddWorkspaceActionType } from "../types/actions";
 import { questionsMonoList } from "../tools/questions";
+import { WorkspacesMap } from "../tools/workspaces/workspaces-map";
 
 export const addWorkspace: AddWorkspaceActionType = async (
   packageName,
@@ -26,19 +23,16 @@ export const addWorkspace: AddWorkspaceActionType = async (
     dirName,
     //  workspaceStructure
   } = await askAddWorkspaceQuestions(packageName, props);
-  const workspaces = getWorkspacesList();
-
-  if (!isAvailableWorkspaceName(pkgName))
+  const workspaces = new WorkspacesMap();
+  const root = workspaces.getRoot();
+  if (!workspaces.isAvailableName(pkgName))
     throw new Error("Workspace name is taken");
 
-  if (
-    workspaces.root.projMan.repoType === "monoRepo" &&
-    workspaces.root.projMan.root
-  ) {
+  if (root.projMan.repoType === "monoRepo" && root.projMan.root) {
     const {
       appsRootDir = configDefaults.appsRootDir,
       packagesRootDir = configDefaults.packagesRootDir,
-    } = workspaces.root.projMan;
+    } = root.projMan;
     const workspacesDir =
       workspaceType === "app" ? appsRootDir : packagesRootDir;
     const projectPath = path.join("./", workspacesDir, dirName);
@@ -54,7 +48,7 @@ export const addWorkspace: AddWorkspaceActionType = async (
 
     await writePackageJson(
       processPackageJson({
-        repoType: workspaces.root.projMan.repoType,
+        repoType: root.projMan.repoType,
         root: false,
         workspaceType,
         framework,

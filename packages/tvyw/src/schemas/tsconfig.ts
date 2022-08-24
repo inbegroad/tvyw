@@ -39,7 +39,7 @@ export const tsconfigSchema = z.object({
       checkJs: z.boolean().optional(),
       composite: z.boolean().optional(),
       declaration: z.boolean().optional(),
-      declarationDir: z.union([z.null(), z.string()]).optional(),
+      declarationDir: z.string().optional(),
       declarationMap: z.boolean().optional(),
       diagnostics: z.boolean().optional(),
       disableReferencedProjectLoad: z.boolean().optional(),

@@ -33,8 +33,6 @@ const returnConfig = (config: ProjManType): Required<ProjManType> =>
           typeSource: config.typeSource || configDefaults.typeSource,
           gitIgnore: config.gitIgnore || configDefaults.gitIgnore,
           npmIgnore: config.npmIgnore || configDefaults.npmIgnore,
-          fullPath: "",
-          location: "",
         }
     : {
         repoType: "single",
@@ -55,8 +53,6 @@ const returnConfig = (config: ProjManType): Required<ProjManType> =>
         typeSource: config.typeSource || configDefaults.typeSource,
         gitIgnore: config.gitIgnore || configDefaults.gitIgnore,
         npmIgnore: config.npmIgnore || configDefaults.npmIgnore,
-        fullPath: "",
-        location: "",
       };
 
 export const defineConfig = (config: ProjManType): Required<ProjManType> =>
