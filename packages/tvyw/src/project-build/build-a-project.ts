@@ -52,7 +52,7 @@ export const buildAProject: BuildAProjectType = async ({
   const workspace =
     repoType === "monoRepo"
       ? workspaces.findByName(packageName)
-      : workspaces.getRoot();
+      : workspaces.root;
 
   if (workspace !== undefined) {
     const { packageJson, tsconfig = {}, name } = workspace;

@@ -3,7 +3,6 @@ import { join } from "path";
 import { resolveConfig } from "../resolveProjMan";
 
 export const getWorkspacesPath = () => {
-  let workspaces: string[] = [];
   const projMan = resolveConfig();
   if (projMan.repoType === "monoRepo" && projMan.root) {
     const { extraWorkspaces, appsRootDir: app, packagesRootDir: pkg } = projMan;
@@ -17,9 +16,8 @@ export const getWorkspacesPath = () => {
       (ws) => join(appsRootDir, ws)
     );
 
-    workspaces = [process.cwd()].concat(extra).concat(apps).concat(packages);
+    return [process.cwd()].concat(extra).concat(apps).concat(packages);
   } else {
-    workspaces = [process.cwd()];
+    return [process.cwd()];
   }
-  return workspaces;
 };

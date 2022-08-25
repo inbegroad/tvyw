@@ -3,33 +3,36 @@ import { PackageJsonType, RepoType } from "../../types/from-schema";
 import { Graph } from "../graph/graph";
 import { Queue } from "../graph/queue";
 import { resolveConfigsFromProjects } from "./resolve-config";
+import { RootMap } from "./root-map";
 import { IWorkspace, WorkspaceDetailsType, WorkspaceMapType } from "./types";
 
 export class WorkspacesMap implements IWorkspace {
   private map: WorkspaceMapType;
   private locationMap: WorkspaceMapType;
-  private nameLocationMap: Map<string, string>;
-  private internalRepoType: RepoType;
+  private nameLocationMap: RootMap<string>;
   private mapArray: WorkspaceDetailsType[];
+  root: WorkspaceDetailsType;
+  repoType: RepoType;
   private depsGraph: Graph<string>;
   // private internalExcutionMap: ExcutionMap;
   private excutionQueue: Queue<string>;
   constructor() {
-    this.map = resolveConfigsFromProjects();
-    this.locationMap = new Map();
-    this.nameLocationMap = new Map();
-    this.map.forEach((ws) => {
-      this.locationMap.set(ws.location, ws);
-      this.nameLocationMap.set(ws.name, ws.location);
-    });
-    this.internalRepoType = this.getRoot().projMan.repoType;
+    const configs = resolveConfigsFromProjects();
+    this.root = configs.getRoot();
+    this.repoType = this.root.projMan.repoType;
+    this.map = configs;
+    this.locationMap = new RootMap();
+    this.nameLocationMap = new RootMap();
+
     this.depsGraph = new Graph();
     this.mapArray = [];
-    if (this.internalRepoType === "monoRepo") {
+    this.excutionQueue = new Queue();
+    if (this.root.projMan.repoType === "monoRepo") {
+      this.map.forEach((ws) => {
+        this.locationMap.set(ws.location, ws);
+        this.nameLocationMap.set(ws.name, ws.location);
+      });
       this.mapArray = [...this.map.values()];
-      // this.internalExcutionMap = new ExcutionMap(
-      //   this.mapArray.map(({ name }) => name)
-      // );
       for (const {
         name,
         packageJson: { dependencies },
@@ -42,11 +45,11 @@ export class WorkspacesMap implements IWorkspace {
           this.depsGraph.addEdge(name, key);
         }
       }
+      this.excutionQueue = Graph.graphToQueue(this.depsGraph);
     }
-    this.excutionQueue = Graph.graphToQueue(this.depsGraph);
   }
   get size() {
-    return this.internalRepoType === "single" ? 1 : this.map.size - 1;
+    return this.root.projMan.repoType === "single" ? 1 : this.map.size - 1;
   }
   isCustom(workspace: WorkspaceDetailsType) {
     return (
@@ -57,18 +60,10 @@ export class WorkspacesMap implements IWorkspace {
         workspace.projMan.framework === "custom")
     );
   }
-  get repoType() {
-    return this.internalRepoType;
-  }
   isDependencyOf(name: string, target: string) {
     return (
       this.findByName(target)?.packageJson.dependencies?.[name] !== undefined
     );
-  }
-  getRoot() {
-    const root = this.map.get("root");
-    if (!root) throw new Error("No root level configuration file found");
-    else return root;
   }
   findByName(name?: string) {
     if (name) return this.map.get(name);
@@ -120,14 +115,14 @@ export class WorkspacesMap implements IWorkspace {
     return ret;
   }
   get workspacesList() {
-    if (this.internalRepoType === "single")
+    if (this.root.projMan.repoType === "single")
       throw new Error(
         "Some hook tried to get workspacesList on a single project\nplease check your config or cwd"
       );
     return this.mapArray.filter((w) => w.name !== "root");
   }
   get queue() {
-    if (this.internalRepoType === "single")
+    if (this.root.projMan.repoType === "single")
       throw new Error(
         "Some hook tried to get excutionQueue on a single project\nplease check your config or cwd"
       );

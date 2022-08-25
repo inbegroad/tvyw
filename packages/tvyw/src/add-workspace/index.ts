@@ -24,11 +24,11 @@ export const addWorkspace: AddWorkspaceActionType = async (
     //  workspaceStructure
   } = await askAddWorkspaceQuestions(packageName, props);
   const workspaces = new WorkspacesMap();
-  const root = workspaces.getRoot();
+  const root = workspaces.root;
   if (!workspaces.isAvailableName(pkgName))
     throw new Error("Workspace name is taken");
 
-  if (root.projMan.repoType === "monoRepo" && root.projMan.root) {
+  if (root?.projMan.repoType === "monoRepo" && root.projMan.root) {
     const {
       appsRootDir = configDefaults.appsRootDir,
       packagesRootDir = configDefaults.packagesRootDir,

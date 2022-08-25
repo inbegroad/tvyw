@@ -6,14 +6,12 @@ import { shell } from "./shell";
 
 export async function run(cmd: ProjManCmdType) {
   const workspaces = new WorkspacesMap();
-
-  if (cmd !== "test") {
-    await projectBuild(workspaces, cmd === "dev");
-  }
   if (cmd === "scaf" || cmd === "test") return;
-  const root = workspaces.getRoot();
-  if (root.projMan.repoType === "single") {
-    await runAProject(cmd, root.projMan.packageName, workspaces, false);
+
+  await projectBuild(workspaces, cmd === "dev");
+  const root = workspaces.root;
+  if (workspaces.repoType === "single") {
+    await runAProject(cmd, root.name, workspaces, false);
   } else {
     const queue = workspaces.queue;
     const size = queue.getSize();
@@ -22,7 +20,7 @@ export async function run(cmd: ProjManCmdType) {
       if (itemName) {
         const curr = workspaces.findByName(itemName);
         if (curr) {
-          if (workspaces.isCustom(curr)) {
+          if (!workspaces.isCustom(curr)) {
             await runAProject(cmd, curr.name, workspaces, true);
           } else {
             shell(`yarn ${cmd}`, curr);

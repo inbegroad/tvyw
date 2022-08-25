@@ -23,7 +23,6 @@ export const versions = {
   "eslint-config-react-app": "7.0.1",
   preact: "10.9.0",
   "eslint-config-preact": "1.3.0",
-  turbo: "1.3.1",
   express: "4.18.1",
   "@swc/core": "1.2.211",
   "@types/express": "4.17.13",

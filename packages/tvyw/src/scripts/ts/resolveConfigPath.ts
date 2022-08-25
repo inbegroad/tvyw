@@ -1,4 +1,3 @@
-import { sync, IOptions } from "glob";
 import ts from "typescript";
 import { WorkspaceDetailsType } from "../../tools/workspaces/types";
 

@@ -16,7 +16,7 @@ export const runAProject = async (
   workspaces: WorkspacesMap,
   isMono: boolean
 ) => {
-  const workspace = isMono ? workspaces.findByName(name) : workspaces.getRoot();
+  const workspace = isMono ? workspaces.findByName(name) : workspaces.root;
   if (workspace) {
     isMono && process.chdir(workspace.location);
     const customLogger =

@@ -219,7 +219,6 @@ export const getDependencies = ({
         dependencies: {
           ...props.dependencies,
           ...forMonoRoot,
-          turbo: versions["turbo"],
           typescript: versions["typescript"],
         },
       };

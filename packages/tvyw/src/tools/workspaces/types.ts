@@ -1,5 +1,6 @@
 import { PackageJsonType, TsconfigType, ProjManType } from "../../types";
 import { RepoType } from "../../types/from-schema";
+import { RootMap } from "./root-map";
 
 export type WorkspaceDetailsType = {
   packageJson: PackageJsonType;
@@ -12,7 +13,7 @@ export type WorkspaceDetailsType = {
   isPackage?: boolean;
   disableTypescript: boolean;
 };
-export type WorkspaceMapType = Map<string, WorkspaceDetailsType>;
+export type WorkspaceMapType = RootMap<WorkspaceDetailsType>;
 export type ConfigFiles = {
   packageJson: PackageJsonType;
   tsconfig?: TsconfigType;
@@ -22,7 +23,7 @@ export interface IWorkspace {
   size: number;
   workspacesList: WorkspaceDetailsType[];
   repoType: RepoType;
-  getRoot: () => WorkspaceDetailsType;
+  root: WorkspaceDetailsType;
   findByName: (name: string) => WorkspaceDetailsType | undefined;
   findByLocation: (location: string) => WorkspaceDetailsType | undefined;
   getLocationByName: (name: string) => string | undefined;

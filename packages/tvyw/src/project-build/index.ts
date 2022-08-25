@@ -17,7 +17,7 @@ export const projectBuild = async (
   isDev: boolean
 ) => {
   const versionJson = getVersionConfig();
-  const root = workspaces.getRoot();
+  const root = workspaces.root;
   if (root.projMan.repoType === "single") {
     const gitIgnorePath = join(process.cwd(), ".gitignore");
     const npmIgnorePath = join(process.cwd(), ".npmignore");
@@ -42,7 +42,7 @@ export const projectBuild = async (
       npmIgnore: npmIgnoreProp,
       gitIgnore: gitIgnoreProp,
     } = root.projMan;
-    const workspace = workspaces.getRoot();
+    const workspace = workspaces.root;
 
     const npmignore = `${npmignoreTemplate}\n${
       versionJson.name
@@ -105,6 +105,9 @@ export const projectBuild = async (
       tsconfig.references = rootRefs;
 
       await writeTsconfig(tsconfig, process.cwd());
+      if (!versionJson.dev) {
+        delete packageJson.scripts?.[versionJson.name];
+      }
 
       await writePackageJson(
         processPackageJson({

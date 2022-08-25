@@ -9,7 +9,7 @@ import { writePackageJson } from "./tools/write";
 
 export const deploy = async () => {
   const workspaces = new WorkspacesMap();
-  const root = workspaces.getRoot();
+  const root = workspaces.root;
   if (root.projMan.repoType === "monoRepo" && root.projMan.root) {
     for (const workspace of workspaces.workspacesList) {
       let newPackageJson = workspace.packageJson;
@@ -30,7 +30,7 @@ export const deploy = async () => {
       await dep(workspace);
     }
   } else {
-    await dep(workspaces.getRoot());
+    await dep(workspaces.root);
   }
 };
 
